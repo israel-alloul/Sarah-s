@@ -1,0 +1,12 @@
+.product-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .product-image-large {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+  }
+  
