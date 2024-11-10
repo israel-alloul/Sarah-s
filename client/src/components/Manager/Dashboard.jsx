@@ -1,18 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+// import ProductsManagement from './ProductsManagement';
 
-function Dashboard() {
+const Dashboard = () => {
   return (
-    <div>
-      <h1>לוח הבקרה</h1>
-      <nav>
-        <ul>
-          <li>ניהול מלאי</li>
-          <li>לוח שנה ואירועים</li>
-          <li>הזמנות אונליין</li>
-        </ul>
-      </nav>
+    <div className="dashboard-container">
+      <h1>לוח ניהול</h1>
+      <ul>
+        <li><Link to="/manager/products">ניהול מוצרים</Link></li>
+        <li><Link to="/manager/orders">ניהול הזמנות</Link></li>
+        <li><Link to="/manager/deliveries">ניהול משלוחים/איסוף עצמי</Link></li>
+        <li><Link to="/manager/payments">ניהול תשלומים</Link></li>
+      </ul>
     </div>
   );
-}
+};
 
 export default Dashboard;

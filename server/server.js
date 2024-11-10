@@ -175,6 +175,21 @@ console.log("result:",result);
 });
 
 
+///////////////ממשק מנהל
+app.get('/api/products', (req, res) => {
+  console.log('Request received at /api/products');
+  const query = 'SELECT * FROM products';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching products:', err);
+      res.status(500).json({ message: 'Server error' });
+    } else {
+      console.log('Products fetched from database:', results);
+      res.json(results);
+    }
+  });
+});
+
 
 
 // הפעלת השרת

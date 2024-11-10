@@ -18,6 +18,8 @@ import Checkout from './components/Client/Chekout'
 import Register from './pages/Register';
 import Payment from './components/Client/Payment';
 
+import ProductsManagement from './components/Manager/ProductsManagement';
+
 function App() {
   return (
     <CartProvider>
@@ -30,11 +32,17 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
+          {/* מנהל  */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/manager/products" element={<ProductsManagement />} />
+
+
+
           <Route path="/cart" element={<Cart />} />
           <Route path="/language" element={<Language />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          
           <Route path="/cakes" element={<ProductList products={products} type="cakes"/>} />
           <Route path="/cakes/:category" element={<ProductList category="עוגות" products={products} />} />
           <Route path="/product/:productId" element={<ProductDetails products={products} />} />
