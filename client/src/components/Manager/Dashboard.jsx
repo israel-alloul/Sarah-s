@@ -7,6 +7,7 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <h1>לוח ניהול</h1>
       <ul>
+        <li><Link to="/manager/client">הצגת משתמשים</Link></li>
         <li><Link to="/manager/products">ניהול מוצרים</Link></li>
         <li><Link to="/manager/orders">ניהול הזמנות</Link></li>
         <li><Link to="/manager/deliveries">ניהול משלוחים/איסוף עצמי</Link></li>

@@ -19,6 +19,8 @@ import Register from './pages/Register';
 import Payment from './components/Client/Payment';
 
 import ProductsManagement from './components/Manager/ProductsManagement';
+import AddProductForm from './components/Manager/AddProductForm';
+import OrdersManagement from './components/Manager/OrdersManagement';
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
           {/* מנהל  */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/manager/products" element={<ProductsManagement />} />
+          <Route path="/manager/add-product" element={<AddProductForm />} />
+          <Route path="/manager/orders" element={<OrdersManagement />} />
 
 
 
