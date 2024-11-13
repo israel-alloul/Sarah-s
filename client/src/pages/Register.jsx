@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', email: '', password: '', phone: '' });
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
@@ -69,6 +69,14 @@ const Register = () => {
           placeholder="אישור סיסמה"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          name="phone"
+          placeholder="טלפון"
+          value={formData.phone}
+          onChange={handleChange}
           required
         />
         <button type="submit">הרשמה</button>

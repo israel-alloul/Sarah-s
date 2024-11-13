@@ -21,6 +21,8 @@ import Payment from './components/Client/Payment';
 import ProductsManagement from './components/Manager/ProductsManagement';
 import AddProductForm from './components/Manager/AddProductForm';
 import OrdersManagement from './components/Manager/OrdersManagement';
+import UserManagement from './components/Manager/UserManagement';
+import OrderDetails from './components/Manager/OrderDetails';
 
 function App() {
   return (
@@ -36,10 +38,11 @@ function App() {
 
           {/* מנהל  */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/manager/client" element={<UserManagement />} />
           <Route path="/manager/products" element={<ProductsManagement />} />
           <Route path="/manager/add-product" element={<AddProductForm />} />
           <Route path="/manager/orders" element={<OrdersManagement />} />
-
+          <Route path="/manager/orders/:orderId/details" element={<OrderDetails />} />
 
 
           <Route path="/cart" element={<Cart />} />

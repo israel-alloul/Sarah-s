@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import AddProductForm from './AddProductForm';
+// import AddProductForm from './AddProductForm';
 
 function ProductsManagement() {
   const [products, setProducts] = useState([]);

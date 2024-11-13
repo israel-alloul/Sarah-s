@@ -86,8 +86,52 @@ app.post("/login", (req, res) => {
 
 //////////////////////////////////////////////
 // מסלול רישום
+// app.post("/api/auth/register", async (req, res) => {
+//   const { username, email, password } = req.body;
+
+//   // בדיקה אם המשתמש כבר קיים
+//   const checkUserQuery = "SELECT * FROM users WHERE email = ? OR username = ?";
+//   db.query(checkUserQuery, [email, username], async (err, results) => {
+//     if (err) {
+//       console.log("Database error:", err);
+//       return res.status(500).json({ message: "Server error" });
+//     }
+//     if (results.length > 0) {
+//       console.log("User already exists:", results);
+//       return res.status(400).json({ message: "User already exists" });
+//     }
+
+//     try {
+//       // הצפנה של הסיסמה
+//       const hashedPassword = await bcrypt.hash(password, 10);
+
+//       // הכנסת המשתמש לטבלה
+//       const insertUserQuery =
+//         "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+//       db.query(
+//         insertUserQuery,
+//         [username, email, hashedPassword],
+//         (err, result) => {
+//           if (err) {
+//             console.log("Error saving user:", err);
+//             return res.status(500).json({ message: "Error saving user" });
+//           }
+//           console.log("User registered successfully:", result);
+//           res.status(201).json({ message: "User registered successfully" });
+//         }
+//       );
+//     } catch (error) {
+//       console.log("Error encrypting password:", error);
+//       res.status(500).json({ message: "Error encrypting password" });
+//     }
+//   });
+// });
+
+
+
+// מסלול רישום
 app.post("/api/auth/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, phone } = req.body;
 
   // בדיקה אם המשתמש כבר קיים
   const checkUserQuery = "SELECT * FROM users WHERE email = ? OR username = ?";
@@ -107,10 +151,10 @@ app.post("/api/auth/register", async (req, res) => {
 
       // הכנסת המשתמש לטבלה
       const insertUserQuery =
-        "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+        "INSERT INTO users (username, email, password, phone) VALUES (?, ?, ?, ?)";
       db.query(
         insertUserQuery,
-        [username, email, hashedPassword],
+        [username, email, hashedPassword, phone],
         (err, result) => {
           if (err) {
             console.log("Error saving user:", err);
@@ -126,7 +170,7 @@ app.post("/api/auth/register", async (req, res) => {
     }
   });
 });
-
+                                                                                                                                                                                                                                                                                                                                                                                                              
 //////////////////////////////////////////////////////////////////////////
 app.get("/api/products", (req, res) => {
   const { type } = req.query; // קבלת type מהשאילתה
