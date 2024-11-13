@@ -122,7 +122,9 @@ const OrdersManagement = () => {
           </tr>
         </thead>
         <tbody>
+          
           {orders.map((order) => (
+
             <tr key={order.order_id}>
               <td>{order.order_id}</td>
               <td>{order.user_id}</td>
@@ -141,8 +143,8 @@ const OrdersManagement = () => {
                   <option value="הושלם">הושלם</option>
                 </select>
               </td>
-
-              <td>{order.delivery_type || "לא הוגדר"}</td>
+          
+              <td>{order.address === "איסוף עצמי" ? "איסוף עצמי" : "משלוח"}</td>
               <td>
                 <button onClick={() => handleViewOrderDetails(order.order_id)}>
                   הצג פריטים
