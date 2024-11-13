@@ -192,6 +192,32 @@ router.put('/orders/:orderId/status', (req, res) => {
   
 
 
+  router.put('/orders/:orderId', (req, res) => {
+    const { orderId } = req.params;
+    const { address, delivery_date, delivery_time } = req.body;
+    console.log(req.body);
+    
   
+    const query = `
+      UPDATE orders
+      SET address = ?, delivery_date = ?, delivery_time = ?
+      WHERE order_id = ?
+    `;
+    db.query(query, [address, delivery_date, delivery_time, orderId], (error, results) => {
+      if (error) {
+        console.log('Error updating order:', error);
+        
+        res.status(500).send('Error updating order');
+      } else {
+        console.log('Order updated successfully');
+        
+        res.send('Order updated successfully');
+      }
+    });
+  });
+  
+
+  
+
 
 module.exports = router;

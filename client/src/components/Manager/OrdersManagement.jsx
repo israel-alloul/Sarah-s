@@ -5,29 +5,24 @@ import '../../assets/stylesManager/OrdersManagement.css';
 const OrdersManagement = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  console.log(selectedOrder);
+  
   const [showModal, setShowModal] = useState(false);
+  const [editData, setEditData] = useState({
+    address: "",
+    delivery_date: "",
+    delivery_time: ""
+  });
   const navigate = useNavigate();
 
   // שליפת ההזמנות מהשרת
   useEffect(() => {
     fetch("http://localhost:5000/admin/orders")
-      .then((response) => {
-        console.log("Response from server:", response); // לוג לבדיקה
-        if (!response.ok) {
-          throw new Error("Failed to fetch orders");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Data received from server:", data); // לוג לבדיקה
-        setOrders(data);
-      })
+      .then((response) => response.json())
+      .then((data) => setOrders(data))
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
 
-  const handleViewOrderDetails = (orderId) => {
-    navigate(`/manager/orders/${orderId}/details`);
-  };
 
   const handleStatusChange = (orderId, newStatus) => {
     fetch(`http://localhost:5000/admin/orders/${orderId}/status`, {
@@ -49,16 +44,66 @@ const OrdersManagement = () => {
       })
       .catch((error) => console.error("Error updating status:", error));
   };
+  
+  const handleViewOrderDetails = (orderId) => {
+    navigate(`/manager/orders/${orderId}/details`);
+  };
 
   const handleViewDeliveryDetails = (order) => {
-    console.log("Viewing delivery details for order:", order);
     setSelectedOrder(order);
+    setEditData({
+      address: order.address || "",
+      delivery_date: order.delivery_date || "",
+      delivery_time: order.delivery_time || ""
+    });
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedOrder(null);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: value });
+  };
+
+  const handleSaveChanges = () => {
+    if (!selectedOrder) return;
+
+
+    const dateObject = new Date(editData.delivery_date);
+    const formattedDate = dateObject.toISOString().split('T')[0];
+
+
+    const updatedOrder = {
+      ...selectedOrder,
+      address: editData.address,
+      delivery_date: formattedDate,
+      delivery_time: editData.delivery_time
+    };
+
+    fetch(`http://localhost:5000/admin/orders/${selectedOrder.order_id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedOrder),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update order");
+        }
+        // Update orders list locally
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.order_id === selectedOrder.order_id ? updatedOrder : order
+          )
+        );
+        closeModal();
+      })
+      .catch((error) => console.error("Error updating order:", error));
   };
 
   return (
@@ -83,6 +128,7 @@ const OrdersManagement = () => {
               <td>{order.user_id}</td>
               <td>{order.total_price} ₪</td>
               <td>{order.order_date}</td>
+              {/* <td>{order.status}</td> */}
               <td>
                 <select
                   value={order.status}
@@ -95,7 +141,8 @@ const OrdersManagement = () => {
                   <option value="הושלם">הושלם</option>
                 </select>
               </td>
-              <td>{order.address==="איסוף עצמי"?"איסוף עצמי":"משלוח"}</td>
+
+              <td>{order.delivery_type || "לא הוגדר"}</td>
               <td>
                 <button onClick={() => handleViewOrderDetails(order.order_id)}>
                   הצג פריטים
@@ -116,15 +163,35 @@ const OrdersManagement = () => {
               &times;
             </span>
             <h2>פרטי משלוח / איסוף עצמי</h2>
-            {selectedOrder.address !== "איסוף עצמי" ? (
-              <div>
-                <p>כתובת משלוח: {selectedOrder.address}</p>
-              </div>
-            ) : (
-              <div>
-                <p>איסוף עצמי</p>
-              </div>
-            )}
+            <div>
+              <label>כתובת משלוח:</label>
+              <input
+                type="text"
+                name="address"
+                value={editData.address}
+                onChange={handleInputChange}
+              />
+           <p>{selectedOrder.address}</p>
+            </div>
+            <div>
+              <label>תאריך משלוח / איסוף:</label>
+              <input
+                type="date"
+                name="delivery_date"
+                value={editData.delivery_date}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label>שעת משלוח / איסוף:</label>
+              <input
+                type="time"
+                name="delivery_time"
+                value={editData.delivery_time}
+                onChange={handleInputChange}
+              />
+            </div>
+            <button onClick={handleSaveChanges}>שמור שינויים</button>
           </div>
         </div>
       )}
