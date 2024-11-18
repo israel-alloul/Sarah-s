@@ -10,7 +10,6 @@ const Dashboard = () => {
         <li><Link to="/manager/client">הצגת משתמשים</Link></li>
         <li><Link to="/manager/products">ניהול מוצרים</Link></li>
         <li><Link to="/manager/orders">ניהול הזמנות</Link></li>
-        <li><Link to="/manager/deliveries">ניהול משלוחים/איסוף עצמי</Link></li>
         <li><Link to="/manager/payments">ניהול תשלומים</Link></li>
       </ul>
     </div>

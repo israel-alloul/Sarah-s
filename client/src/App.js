@@ -23,6 +23,7 @@ import AddProductForm from './components/Manager/AddProductForm';
 import OrdersManagement from './components/Manager/OrdersManagement';
 import UserManagement from './components/Manager/UserManagement';
 import OrderDetails from './components/Manager/OrderDetails';
+import PaymentsManagement from './components/Manager/PaymentsManagement';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/manager/add-product" element={<AddProductForm />} />
           <Route path="/manager/orders" element={<OrdersManagement />} />
           <Route path="/manager/orders/:orderId/details" element={<OrderDetails />} />
+          <Route path="/manager/payments" element={<PaymentsManagement />} />
 
 
           <Route path="/cart" element={<Cart />} />

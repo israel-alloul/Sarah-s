@@ -7,6 +7,7 @@ const Payment = () => {
   const { cartItems, address, deliveryFee, isDelivery } = location.state || {};
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0) + deliveryFee;
 
+  const [paymentMethod, setPaymentMethod] = useState(''); 
   const [cardName, setCardName] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
@@ -34,10 +35,8 @@ const Payment = () => {
           totalPrice,
           isDelivery,
           paymentMethod: {
-            cardName,
-            cardNumber,
-            expiryDate,
-            cvv
+            method: paymentMethod,
+            details: paymentMethod === 'Credit Card' ? { cardName, cardNumber, expiryDate, cvv } : {}
           }
         })
       });
@@ -64,23 +63,79 @@ const Payment = () => {
       <h2>תשלום</h2>
       {address && <p>כתובת למשלוח: {address}</p>}
 
-      <h3>פרטי כרטיס אשראי</h3>
+      <h3>בחר אמצעי תשלום</h3>
       <div>
-        <label>שם בעל הכרטיס:</label>
-        <input type="text" value={cardName} onChange={handleInputChange(setCardName)} placeholder="הכנס את שם בעל הכרטיס" />
+        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+          <option value=""> בחר אמצעי תשלום</option>
+          <option value="כרטיס אשראי">כרטיס אשראי</option>
+          <option value="מזומן">מזומן</option>
+        <option value="שיק">שיק</option>
+          <option value="העברה בנקאית">העברה בנקאית</option>
+        </select>
       </div>
-      <div>
-        <label>מספר כרטיס:</label>
-        <input type="text" value={cardNumber} onChange={handleInputChange(setCardNumber)} placeholder="הכנס את מספר הכרטיס" maxLength="16" />
-      </div>
-      <div>
-        <label>תאריך תפוגה:</label>
-        <input type="text" value={expiryDate} onChange={handleInputChange(setExpiryDate)} placeholder="MM/YY" maxLength="5" />
-      </div>
-      <div>
-        <label>CVV:</label>
-        <input type="text" value={cvv} onChange={handleInputChange(setCvv)} placeholder="CVV" maxLength="3" />
-      </div>
+
+      {paymentMethod === 'העברה בנקאית' && (
+        <div>
+          <h3>פרטי כרטיס אשראי</h3>
+          <div>
+            <label>שם בעל הכרטיס:</label>
+            <input
+              type="text"
+              value={cardName}
+              onChange={handleInputChange(setCardName)}
+              placeholder="הכנס את שם בעל הכרטיס"
+            />
+          </div>
+          <div>
+            <label>מספר כרטיס:</label>
+            <input
+              type="text"
+              value={cardNumber}
+              onChange={handleInputChange(setCardNumber)}
+              placeholder="הכנס את מספר הכרטיס"
+              maxLength="16"
+            />
+          </div>
+          <div>
+            <label>תאריך תפוגה:</label>
+            <input
+              type="text"
+              value={expiryDate}
+              onChange={handleInputChange(setExpiryDate)}
+              placeholder="MM/YY"
+              maxLength="5"
+            />
+          </div>
+          <div>
+            <label>CVV:</label>
+            <input
+              type="text"
+              value={cvv}
+              onChange={handleInputChange(setCvv)}
+              placeholder="CVV"
+              maxLength="3"
+            />
+          </div>
+        </div>
+      )}
+
+      {paymentMethod === 'מזומן' && (
+        <div>
+          <p>תשלום דרך PayPal יתבצע בעת לחיצה על הכפתור למטה.</p>
+        </div>
+      )}
+
+      {paymentMethod === 'שיק' && (
+        <div>
+          <p>פרטי שיק יינתנו לאחר השלמת ההזמנה.</p>
+        </div>
+      )}
+
+      {paymentMethod === 'כרטיס אשראי' && (
+        <div>
+          <p>פרטי להעברה בנקאית יינתנו לאחר השלמת ההזמנה.</p>
+        </div>
+      )}
 
       <button onClick={handlePayment}>בצע תשלום</button>
     </div>
@@ -88,4 +143,3 @@ const Payment = () => {
 };
 
 export default Payment;
-

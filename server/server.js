@@ -7,7 +7,7 @@ const cors = require("cors");
 const { authenticateToken } = require("./Middleware");
 require("dotenv").config();
 
- const app = express();
+const app = express();
 app.use(express.json());
 app.use(cors());
 
@@ -26,15 +26,6 @@ db.connect((err) => {
 
 const appAdmin = require("./routes/admin");
 app.use("/admin", appAdmin);
-
-
-
-
-
-
-
-
-
 
 // יצירת JWT Token
 const generateToken = (user) => {
@@ -84,51 +75,6 @@ app.post("/login", (req, res) => {
   });
 });
 
-//////////////////////////////////////////////
-// מסלול רישום
-// app.post("/api/auth/register", async (req, res) => {
-//   const { username, email, password } = req.body;
-
-//   // בדיקה אם המשתמש כבר קיים
-//   const checkUserQuery = "SELECT * FROM users WHERE email = ? OR username = ?";
-//   db.query(checkUserQuery, [email, username], async (err, results) => {
-//     if (err) {
-//       console.log("Database error:", err);
-//       return res.status(500).json({ message: "Server error" });
-//     }
-//     if (results.length > 0) {
-//       console.log("User already exists:", results);
-//       return res.status(400).json({ message: "User already exists" });
-//     }
-
-//     try {
-//       // הצפנה של הסיסמה
-//       const hashedPassword = await bcrypt.hash(password, 10);
-
-//       // הכנסת המשתמש לטבלה
-//       const insertUserQuery =
-//         "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-//       db.query(
-//         insertUserQuery,
-//         [username, email, hashedPassword],
-//         (err, result) => {
-//           if (err) {
-//             console.log("Error saving user:", err);
-//             return res.status(500).json({ message: "Error saving user" });
-//           }
-//           console.log("User registered successfully:", result);
-//           res.status(201).json({ message: "User registered successfully" });
-//         }
-//       );
-//     } catch (error) {
-//       console.log("Error encrypting password:", error);
-//       res.status(500).json({ message: "Error encrypting password" });
-//     }
-//   });
-// });
-
-
-
 // מסלול רישום
 app.post("/api/auth/register", async (req, res) => {
   const { username, email, password, phone } = req.body;
@@ -170,7 +116,7 @@ app.post("/api/auth/register", async (req, res) => {
     }
   });
 });
-                                                                                                                                                                                                                                                                                                                                                                                                              
+
 //////////////////////////////////////////////////////////////////////////
 app.get("/api/products", (req, res) => {
   const { type } = req.query; // קבלת type מהשאילתה
@@ -202,7 +148,6 @@ app.post("/api/orders", authenticateToken, (req, res) => {
   console.log("paymentMethod:", paymentMethod);
   console.log("isDelivery:", isDelivery);
 
-  // בדיקה ש-productDetails מוגדר ושהוא מערך
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     return res.status(400).json({ message: "Invalid product details" });
   }
@@ -215,11 +160,9 @@ app.post("/api/orders", authenticateToken, (req, res) => {
       console.error("Error inserting order:", err);
       return res.status(500).json({ message: "Server error" });
     }
-    console.log("result:", result);
 
     const orderId = result.insertId;
 
-    // הוספת פרטי המוצרים להזמנה בטבלת הזמנות_פריטים
     const orderItemsQuery =
       "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ?";
     const orderItems = cartItems.map((item) => [
@@ -234,7 +177,33 @@ app.post("/api/orders", authenticateToken, (req, res) => {
         console.error("Error inserting order items:", err);
         return res.status(500).json({ message: "Server error" });
       }
-      res.status(201).json({ message: "Order created successfully" });
+
+      // הוספת הרשומה לטבלת payments
+      // הוצא את method מתוך paymentMethod אם הוא אובייקט
+      const paymentMethodValue =
+        typeof paymentMethod === "object"
+          ? paymentMethod.method
+          : paymentMethod;
+
+      const insertPaymentQuery =
+        "INSERT INTO payments (order_id, user_id, payment_date, amount, payment_method, status) VALUES (?, ?, NOW(), ?, ?, ?)";
+      const paymentStatus =
+        paymentMethodValue === "כרטיס אשראי" ? "שולם" : "ממתין";
+
+      db.query(
+        insertPaymentQuery,
+        [orderId, userId, totalPrice, paymentMethodValue, paymentStatus],
+        (err) => {
+          if (err) {
+            console.error("Error inserting payment:", err);
+            return res.status(500).json({ message: "Server error" });
+          }
+
+          res
+            .status(201)
+            .json({ message: "Order and payment created successfully" });
+        }
+      );
     });
   });
 });
