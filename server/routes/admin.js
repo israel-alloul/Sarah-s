@@ -300,10 +300,10 @@ router.put("/payments/:id", (req, res) => {
 // נתיב לעדכון הערות ומספר קבלה לתשלום
 router.put("/payments/:id/notes", (req, res) => {
   const { id } = req.params;
-  const { notes, receipt_number } = req.body; // נוסיף את מספר הקבלה מגוף הבקשה
-  const query = "UPDATE PAYMENTS SET notes = ?, receipt_number = ? WHERE payment_id = ?";
+  const { notes, receipt_number , payment_date} = req.body; // נוסיף את מספר הקבלה מגוף הבקשה
+  const query = "UPDATE PAYMENTS SET notes = ?, receipt_number = ? , payment_date = ? WHERE payment_id = ?";
 
-  db.query(query, [notes, receipt_number, id], (error, results) => {
+  db.query(query, [notes, receipt_number,payment_date, id], (error, results) => {
     if (error) {
       console.error("Error updating notes and receipt number:", error);
       res.status(500).send("Error updating notes and receipt number");
