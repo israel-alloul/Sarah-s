@@ -241,7 +241,7 @@ router.get("/payments", (req, res) => {
   console.log("Fetching payments...");
   
   const query = `
-    SELECT p.payment_id, u.username AS customer_name, p.order_id, p.amount, p.status, p.payment_date ,p.payment_method
+    SELECT p.payment_id, u.username AS customer_name, p.order_id, p.amount, p.status, p.payment_date ,p.payment_method,p.notes,p.receipt_number
     FROM PAYMENTS p
     JOIN USERS u ON p.user_id = u.id
   `;
@@ -278,20 +278,38 @@ router.put("/payments/:id", (req, res) => {
 });
 
 
-// נתיב לעדכון הערות לתשלום
+// // נתיב לעדכון הערות לתשלום
+// router.put("/payments/:id/notes", (req, res) => {
+//   const { id } = req.params;
+//   const { notes } = req.body;
+//   const query = "UPDATE PAYMENTS SET notes = ? WHERE payment_id = ?";
+
+//   db.query(query, [notes, id], (error, results) => {
+//     if (error) {
+//       console.error("Error updating notes:", error);
+//       res.status(500).send("Error updating notes");
+//     } else {
+//       res.send("Notes updated successfully");
+//       console.log("Notes updated successfully",results);
+      
+//     }
+//   });
+// });
+
+
+// נתיב לעדכון הערות ומספר קבלה לתשלום
 router.put("/payments/:id/notes", (req, res) => {
   const { id } = req.params;
-  const { notes } = req.body;
-  const query = "UPDATE PAYMENTS SET notes = ? WHERE payment_id = ?";
+  const { notes, receipt_number } = req.body; // נוסיף את מספר הקבלה מגוף הבקשה
+  const query = "UPDATE PAYMENTS SET notes = ?, receipt_number = ? WHERE payment_id = ?";
 
-  db.query(query, [notes, id], (error, results) => {
+  db.query(query, [notes, receipt_number, id], (error, results) => {
     if (error) {
-      console.error("Error updating notes:", error);
-      res.status(500).send("Error updating notes");
+      console.error("Error updating notes and receipt number:", error);
+      res.status(500).send("Error updating notes and receipt number");
     } else {
-      res.send("Notes updated successfully");
-      console.log("Notes updated successfully",results);
-      
+      res.send("Notes and receipt number updated successfully");
+      console.log("Notes and receipt number updated successfully", results);
     }
   });
 });

@@ -67,14 +67,14 @@ const Payment = () => {
       <div>
         <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
           <option value=""> בחר אמצעי תשלום</option>
-          <option value="כרטיס אשראי">כרטיס אשראי</option>
+          <option value="Credit Card">כרטיס אשראי</option>
           <option value="מזומן">מזומן</option>
         <option value="שיק">שיק</option>
           <option value="העברה בנקאית">העברה בנקאית</option>
         </select>
       </div>
 
-      {paymentMethod === 'העברה בנקאית' && (
+      {paymentMethod === 'Credit Card' && (
         <div>
           <h3>פרטי כרטיס אשראי</h3>
           <div>
@@ -131,7 +131,7 @@ const Payment = () => {
         </div>
       )}
 
-      {paymentMethod === 'כרטיס אשראי' && (
+      {paymentMethod === 'העברה בנקאית' && (
         <div>
           <p>פרטי להעברה בנקאית יינתנו לאחר השלמת ההזמנה.</p>
         </div>

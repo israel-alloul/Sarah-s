@@ -5,7 +5,10 @@ const PaymentsManagement = () => {
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null); // state עבור מודאל
   const [notes, setNotes] = useState('');
+  const [receiptNumber, setReceiptNumber] = useState('');
   
+console.log(selectedPayment);
+
   useEffect(() => {
     // קריאה לשרת לשליפת תשלומים
     fetch('http://localhost:5000/admin/payments')
@@ -40,8 +43,11 @@ const PaymentsManagement = () => {
 
 
   const handleShowDetails = (payment) => {
+    console.log(payment);
+    
     setSelectedPayment(payment);
-    setNotes(payment.notes || ''); // אתחול ההערות
+    setNotes(payment.notes || '');
+    setReceiptNumber(payment.receipt_number || '');
   };
 
   const handleCloseModal = () => {
@@ -50,6 +56,10 @@ const PaymentsManagement = () => {
 
   const handleNotesChange = (e) => {
     setNotes(e.target.value);
+  };
+
+  const handleReceiptNumberChange = (e) => {
+    setReceiptNumber(e.target.value);
   };
 
     // פונקציה לעדכון הערות בשרת
@@ -61,14 +71,14 @@ const PaymentsManagement = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ notes }),
+        body: JSON.stringify({ notes, receipt_number: receiptNumber }),
       })
         .then(response => {
           if (response.ok) {
             // עדכון ההערות ב-state המקומי
             setPayments(prevPayments =>
               prevPayments.map(payment =>
-                payment.payment_id === selectedPayment.payment_id ? { ...payment, notes } : payment
+                payment.payment_id === selectedPayment.payment_id ? { ...payment, notes, receipt_number: receiptNumber } : payment
               )
             );
             handleCloseModal(); // סגירת המודאל
@@ -107,6 +117,7 @@ const PaymentsManagement = () => {
               <td>{payment.customer_name}</td>
               <td>{payment.order_id}</td>
               <td>{payment.amount} ₪</td>
+
               {/* <td>{payment.status}</td> */}
                <td>
                 <select
@@ -140,11 +151,20 @@ const PaymentsManagement = () => {
             <h2>פרטי תשלום</h2>
             <p>שם לקוח: {selectedPayment.customer_name}</p>
             <p>סוג תשלום: {selectedPayment.payment_method}</p>
+           
             <label htmlFor="notes">הערות:</label>
             <textarea
               id="notes"
+             
               value={notes}
               onChange={handleNotesChange}
+            />
+             <label htmlFor="receiptNumber">מספר קבלה:</label>
+            <input
+              id="receiptNumber"
+              type="text"
+              value={receiptNumber}
+              onChange={handleReceiptNumberChange}
             />
              <button onClick={handleSaveNotes}>שמור שינויים</button>
           </div>
