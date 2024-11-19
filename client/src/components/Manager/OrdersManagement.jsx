@@ -70,7 +70,9 @@ const OrdersManagement = () => {
   };
 
   const handleSaveChanges = () => {
-    if (!selectedOrder) return;
+    // if (!selectedOrder) return;
+    console.log(selectedOrder);
+    
 
 
     const dateObject = new Date(editData.delivery_date);
