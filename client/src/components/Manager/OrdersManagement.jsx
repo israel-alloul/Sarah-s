@@ -5,7 +5,7 @@ import '../../assets/stylesManager/OrdersManagement.css';
 const OrdersManagement = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  console.log(selectedOrder);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState({
@@ -108,14 +108,23 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error updating order:", error));
   };
 
+  const fetchPickupOrders = () => {
+    fetch("http://localhost:5000/admin/orders/pickup-next-week")
+      .then((response) => response.json())
+      .then((data) => setFilteredOrders(data))
+      .catch((error) => console.error("Error fetching filtered orders:", error));
+  };
+
   return (
     <div>
       <h1>ניהול הזמנות</h1>
+      <button onClick={fetchPickupOrders}>הזמנות לאיסוף עצמי</button>
       <table>
         <thead>
           <tr>
             <th>מספר הזמנה</th>
             <th>שם לקוח</th>
+            <th>מספר משתמש</th>
             <th>סכום כולל</th>
             <th>תאריך</th>
             <th>סטטוס</th>
@@ -125,13 +134,14 @@ const OrdersManagement = () => {
         </thead>
         <tbody>
           
-          {orders.map((order) => (
+          {(filteredOrders.length > 0 ? filteredOrders : orders).map((order) => (
 
             <tr key={order.order_id}>
               <td>{order.order_id}</td>
+              <td>{order.customer_name}</td> 
               <td>{order.user_id}</td>
               <td>{order.total_price} ₪</td>
-              <td>{order.order_date}</td>
+              <td>{formatDate(order.order_date)}</td>
               {/* <td>{order.status}</td> */}
               <td>
                 <select
@@ -204,3 +214,12 @@ const OrdersManagement = () => {
 };
 
 export default OrdersManagement;
+
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
+  return `${day}/${month}/${year}`;
+};

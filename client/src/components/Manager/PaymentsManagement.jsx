@@ -3,6 +3,14 @@ import "../../assets/stylesManager/OrdersManagement.css";
 
 const PaymentsManagement = () => {
   const [payments, setPayments] = useState([]);
+
+  const [searchTerm, setSearchTerm] = useState(""); // הוספת state עבור החיפוש
+  const [filteredPayments, setFilteredPayments] = useState([]);
+
+  const [statusFilter, setStatusFilter] = useState(""); // לסינון לפי סטטוס תשלום
+  const [dateFilter, setDateFilter] = useState(""); // לסינון לפי תאריך
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState(""); // לסינון לפי אמצעי תשלום
+
   const [selectedPayment, setSelectedPayment] = useState(null); // state עבור מודאל
   const [notes, setNotes] = useState("");
   const [receiptNumber, setReceiptNumber] = useState("");
@@ -13,10 +21,45 @@ const PaymentsManagement = () => {
       .then((response) => response.json())
       .then((data) => {
         setPayments(data);
+        setFilteredPayments(data);
         console.log("Fetched payments:", data);
       })
       .catch((error) => console.error("Error fetching payments:", error));
   }, []);
+
+  // לסינון
+  useEffect(() => {
+    console.log("Starting filter process with:", {
+      statusFilter,
+      dateFilter,
+      paymentMethodFilter,
+      payments,
+    });
+
+    const filteredResults = payments.filter((payment) => {
+      const matchesStatus =
+        statusFilter === "" || payment.status === statusFilter;
+      const matchesDate =
+        dateFilter === "" || payment.payment_date.startsWith(dateFilter);
+      const matchesPaymentMethod =
+        paymentMethodFilter === "" ||
+        payment.payment_method === paymentMethodFilter;
+      return matchesStatus && matchesDate && matchesPaymentMethod;
+    });
+    setFilteredPayments(filteredResults);
+  }, [statusFilter, dateFilter, paymentMethodFilter, payments]);
+
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+
+    const filtered = payments.filter(
+      (payment) =>
+        payment.customer_name.toLowerCase().includes(term) ||
+        payment.order_id.toString().includes(term)
+    );
+    setFilteredPayments(filtered);
+  };
 
   const handleStatusChange = (paymentId, newStatus) => {
     // שליחת בקשת עדכון לשרת
@@ -108,14 +151,73 @@ const PaymentsManagement = () => {
       .catch((error) => console.error("שגיאה בעדכון ההערות:", error));
   };
 
+  const handleSendReminder = (paymentId) => {
+    fetch("http://localhost:5000/admin/send-reminder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ paymentId }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("תזכורת נשלחה בהצלחה!");
+        } else {
+          alert("שגיאה בשליחת תזכורת.");
+        }
+      })
+      .catch((error) => console.error("Error sending reminder:", error));
+  };
+  
+
   return (
     <div>
       <h1>ניהול תשלומים</h1>
+      <div>
+        {/* הצגת פילטר */}
+        <label>סטטוס תשלום:</label>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">הצג הכל</option>
+          <option value="שולם">שולם</option>
+          <option value="ממתין">ממתין</option>
+          <option value="בוטל">בוטל</option>
+        </select>
+
+        <label>תאריך:</label>
+        <input
+          type="date"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+        />
+        <label>אמצעי תשלום:</label>
+        <select
+          value={paymentMethodFilter}
+          onChange={(e) => setPaymentMethodFilter(e.target.value)}
+        >
+          <option value="">הצג הכל</option>
+          <option value="מזומן">מזומן</option>
+          <option value="שיק">צ'ק</option>
+        </select>
+      </div>
+
+      {/* שדה חיפוש */}
+      <input
+        type="text"
+        placeholder="חפש לפי שם לקוח או מספר הזמנה"
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+
       <table>
         <thead>
           <tr>
             <th>מספר תשלום</th>
-            <th>שם המזמין</th>
+             <th>מספר לקוח</th>
+            <th>שם לקוח</th>
+           
             <th>מספר הזמנה</th>
             <th>סכום</th>
             <th>סטטוס</th>
@@ -125,10 +227,12 @@ const PaymentsManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {payments.map((payment) => (
+          {filteredPayments.map((payment) => (
             <tr key={payment.payment_id}>
               <td>{payment.payment_id}</td>
+              <td>{payment.user_id}</td>
               <td>{payment.customer_name}</td>
+              
               <td>{payment.order_id}</td>
               <td>{payment.amount} ₪</td>
 
@@ -155,7 +259,7 @@ const PaymentsManagement = () => {
                 <button onClick={() => handleShowDetails(payment)}>
                   הצג פרטים
                 </button>
-                {payment.status !== "שולם" && <button>אשר תשלום</button>}
+                {/* {payment.status !== "שולם" && <button>אשר תשלום</button>} */}
               </td>
             </tr>
           ))}
@@ -202,6 +306,12 @@ const PaymentsManagement = () => {
               onChange={handleReceiptNumberChange}
             />
             <button onClick={handleSaveNotes}>שמור שינויים</button>
+            <td>
+            <button onClick={() => handleSendReminder(selectedPayment.payment_id)}>
+             שלח תזכורת
+            </button>
+          </td>
+
           </div>
         </div>
       )}

@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../connection/db");
+// const nodemailer = require("nodemailer");
+// const bodyParser = require("body-parser");
+const sendPaymentReminderEmail = require("./emailUtils");
 
+// app.use(bodyParser.json());
 router.get("/", (req, res) => {
   res.send("I admin");
 });
@@ -98,7 +102,22 @@ router.get("/users", async (req, res) => {
 // נתיב להצגת ההזמנות למנהל
 router.get("/orders", async (req, res) => {
   try {
-    const query = "SELECT * FROM orders";
+    const query = `
+      SELECT 
+        o.order_id, 
+        o.user_id, 
+        u.username AS customer_name, 
+        o.total_price, 
+        o.order_date, 
+        o.status, 
+        o.address 
+      FROM 
+        orders o
+      JOIN 
+        users u 
+      ON 
+        o.user_id = u.id
+    `;
     db.query(query, (err, results) => {
       if (err) {
         console.error("Error fetching products:", err);
@@ -223,6 +242,56 @@ router.put("/orders/:orderId", (req, res) => {
   );
 });
 
+router.get("/orders/pickup-next-week", async (req, res) => {
+  try {
+  const today = new Date(); // התאריך הנוכחי
+  const oneWeekFromNow = new Date();
+  oneWeekFromNow.setDate(today.getDate() + 7);
+
+  // עיצוב התאריכים לפורמט YYYY-MM-DD
+  const formattedToday = today.toISOString().split("T")[0];
+  const formattedOneWeekFromNow = oneWeekFromNow.toISOString().split("T")[0];
+
+  const query = `
+    SELECT 
+      o.order_id, 
+      o.user_id, 
+      u.username AS customer_name, 
+      o.total_price, 
+      o.order_date, 
+      o.status, 
+      o.address 
+    FROM 
+      orders o
+    JOIN 
+      users u 
+    ON 
+      o.user_id = u.id
+    WHERE 
+      o.status = 'ממתין לטיפול' 
+      AND o.address = 'איסוף עצמי'
+      AND o.order_date BETWEEN ? AND ?
+  `;
+
+  // העברת הטווח לשאילתה
+  db.query(query, [formattedToday, formattedOneWeekFromNow], (err, results) => {
+    if (err) {
+      console.error("Error fetching filtered orders:", err);
+      res.status(500).json({ message: "Server error" });
+    } else {
+      console.log("Filtered orders fetched from database:", results);
+      res.json(results);
+    }
+  });
+} catch (error) {
+  console.error("Error fetching filtered orders:", error);
+  res.status(500).json({ message: "Error fetching orders" });
+  
+}
+
+});
+
+
 // נתיב להצגת פרטי תשלום
 // router.get("/payments", (req, res) => {
 //   const query = "SELECT * FROM PAYMENTS";
@@ -241,10 +310,25 @@ router.get("/payments", (req, res) => {
   console.log("Fetching payments...");
   
   const query = `
-    SELECT p.payment_id, u.username AS customer_name, p.order_id, p.amount, p.status, p.payment_date ,p.payment_method,p.notes,p.receipt_number
-    FROM PAYMENTS p
-    JOIN USERS u ON p.user_id = u.id
-  `;
+   SELECT 
+      p.payment_id, 
+      u.id AS user_id, -- הוספת מספר לקוח
+      u.username AS customer_name, 
+      p.order_id, 
+      p.amount, 
+      p.status, 
+      p.payment_date,
+      p.payment_method,
+      p.notes,
+      p.receipt_number
+    FROM 
+      PAYMENTS p
+    JOIN 
+      USERS u 
+    ON 
+      p.user_id = u.id
+  `
+  ;
   db.query(query, (error, results) => {
     if (error) {
       console.error("Error fetching payments:", error);
@@ -313,5 +397,61 @@ router.put("/payments/:id/notes", (req, res) => {
     }
   });
 });
+
+
+// מסלול לשליחת תזכורת
+router.post("/send-reminder", (req, res) => {
+  const { paymentId } = req.body;
+
+  // וידוא פרמטרים מהבקשה
+  if (!paymentId) {
+    return res.status(400).send("Payment ID is required");
+  }
+
+  // שאילתה לבסיס הנתונים
+  const query = `
+    SELECT 
+        u.email AS customer_email,
+        u.username AS customer_name,
+        p.order_id,
+        p.amount,
+        p.status
+    FROM 
+        payments p
+    JOIN 
+        users u
+    ON 
+        p.user_id = u.id
+    WHERE 
+        p.payment_id = ? 
+        AND p.status != 'שולם';
+  `;
+
+  db.query(query, [paymentId], (err, results) => {
+    if (err) {
+      console.error("Error fetching payment details:", err);
+      return res.status(500).send("Error fetching payment details");
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send("Payment not found or already paid");
+    }
+
+    console.log("res ----",results[0]);
+    
+    // שליפת נתונים מהתוצאה
+    const { customer_email, customer_name, order_id } = results[0];
+
+    // קריאה לפונקציה לשליחת המייל
+    sendPaymentReminderEmail(customer_email, customer_name, order_id)
+      .then(() => res.send("Reminder email sent successfully"))
+      .catch((error) => {
+        console.error("Error sending email:", error);
+        res.status(500).send("Error sending email");
+      });
+  });
+});
+
+
 
 module.exports = router;

@@ -10,6 +10,7 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+// app.use(bodyParser.json());
 
 // חיבור למסד הנתונים
 const db = mysql.createConnection({
@@ -153,7 +154,7 @@ app.post("/api/orders", authenticateToken, (req, res) => {
   }
 
   const insertOrderQuery =
-    "INSERT INTO orders (user_id, total_price, address) VALUES (?, ?, ?)";
+    "INSERT INTO orders (user_id, total_price, address,order_date) VALUES (?, ?, ?, NOW())";
 
   db.query(insertOrderQuery, [userId, totalPrice, address], (err, result) => {
     if (err) {
