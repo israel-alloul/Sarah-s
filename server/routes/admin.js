@@ -69,12 +69,10 @@ router.post("/products", (req, res) => {
         res.status(500).json({ message: "Server error" });
       } else {
         console.log("Product added successfully");
-        res
-          .status(201)
-          .json({
-            message: "Product added successfully",
-            productId: result.insertId,
-          });
+        res.status(201).json({
+          message: "Product added successfully",
+          productId: result.insertId,
+        });
       }
     }
   );
@@ -110,7 +108,9 @@ router.get("/orders", async (req, res) => {
         o.total_price, 
         o.order_date, 
         o.status, 
-        o.address 
+        o.address, 
+        o.delivery_date, 
+        o.delivery_time 
       FROM 
         orders o
       JOIN 
@@ -243,16 +243,19 @@ router.put("/orders/:orderId", (req, res) => {
 });
 
 router.get("/orders/pickup-next-week", async (req, res) => {
+  const address = req.query.address === "איסוף עצמי";
+
+
   try {
-    const today = new Date(); // תאריך נוכחי
+    const today = new Date();
     const oneWeekFromNow = new Date();
     oneWeekFromNow.setDate(today.getDate() + 7);
-  
-    // עיצוב התאריכים לפורמט YYYY-MM-DD
-    const formattedToday = today.toISOString().split("T")[0];
-    const formattedOneWeekFromNow = oneWeekFromNow.toISOString().split("T")[0];
-  
-    const query = `
+
+    // עיצוב התאריכים בפורמט תואם ל-MySQL (YYYY-MM-DD)
+    const formattedToday = today.toISOString().slice(0, 10);
+    const formattedOneWeekFromNow = oneWeekFromNow.toISOString().slice(0, 10);
+
+    let query = `
       SELECT 
         o.order_id, 
         o.user_id, 
@@ -267,29 +270,45 @@ router.get("/orders/pickup-next-week", async (req, res) => {
         users u 
       ON 
         o.user_id = u.id
-      WHERE 
-        o.status = 'ממתין לטיפול' 
-        AND o.address = 'איסוף עצמי'
-        AND o.planned_date BETWEEN ? AND ?
     `;
-  
-    db.query(query, [formattedToday, formattedOneWeekFromNow], (err, results) => {
-      if (err) {
-        console.error("Error fetching filtered orders:", err);
-        res.status(500).json({ message: "Server error" });
-      } else {
-        console.log("Filtered orders fetched from database:", results);
-        res.json(results);
+
+    // הוספת תנאי WHERE דינמי
+    if (address) {
+      query += `
+        WHERE 
+          o.status = 'ממתין לביצוע' 
+          AND o.address = 'איסוף עצמי' 
+          AND o.planned_date BETWEEN ? AND ?
+      `;
+    } else {
+      query += `
+        WHERE 
+          o.status = 'ממתין לביצוע' 
+          AND o.address != 'איסוף עצמי' 
+          AND o.planned_date BETWEEN ? AND ?
+      `;
+    }
+
+    db.query(
+      query,
+      [address, formattedToday, formattedOneWeekFromNow],
+      (err, results) => {
+        if (err) {
+          console.error("Error fetching filtered orders:", err);
+          res.status(500).json({ message: "Server error" });
+        } else {
+          console.log("Filtered orders fetched from database:", results);
+          res.json(results);
+        }
       }
-    });
+    );
   } catch (error) {
     console.error("Error fetching filtered orders:", error);
     res.status(500).json({ message: "Error fetching orders" });
   }
-  
-
 });
 
+///////////////////////////////////////////////////////////////////////////////
 
 // נתיב להצגת פרטי תשלום
 // router.get("/payments", (req, res) => {
@@ -307,7 +326,7 @@ router.get("/orders/pickup-next-week", async (req, res) => {
 // נתיב להצגת פרטי תשלום
 router.get("/payments", (req, res) => {
   console.log("Fetching payments...");
-  
+
   const query = `
    SELECT 
       p.payment_id, 
@@ -326,8 +345,7 @@ router.get("/payments", (req, res) => {
       USERS u 
     ON 
       p.user_id = u.id
-  `
-  ;
+  `;
   db.query(query, (error, results) => {
     if (error) {
       console.error("Error fetching payments:", error);
@@ -339,13 +357,14 @@ router.get("/payments", (req, res) => {
   });
 });
 
-
 // נתיב לעדכון סטטוס תשלום
 router.put("/payments/:id", (req, res) => {
   const paymentId = req.params.id;
   const newStatus = req.body.status;
-  
-  console.log(`Received request to update status for paymentId: ${paymentId} with new status: ${newStatus}`);
+
+  console.log(
+    `Received request to update status for paymentId: ${paymentId} with new status: ${newStatus}`
+  );
 
   const query = "UPDATE PAYMENTS SET status = ? WHERE payment_id = ?";
   db.query(query, [newStatus, paymentId], (error, results) => {
@@ -354,12 +373,11 @@ router.put("/payments/:id", (req, res) => {
       res.status(500).send("Error updating payment status");
     } else {
       console.log("Payment status updated successfully. ");
-      
+
       res.sendStatus(200);
     }
   });
 });
-
 
 // // נתיב לעדכון הערות לתשלום
 // router.put("/payments/:id/notes", (req, res) => {
@@ -374,29 +392,32 @@ router.put("/payments/:id", (req, res) => {
 //     } else {
 //       res.send("Notes updated successfully");
 //       console.log("Notes updated successfully",results);
-      
+
 //     }
 //   });
 // });
 
-
 // נתיב לעדכון הערות ומספר קבלה לתשלום
 router.put("/payments/:id/notes", (req, res) => {
   const { id } = req.params;
-  const { notes, receipt_number , payment_date} = req.body; // נוסיף את מספר הקבלה מגוף הבקשה
-  const query = "UPDATE PAYMENTS SET notes = ?, receipt_number = ? , payment_date = ? WHERE payment_id = ?";
+  const { notes, receipt_number, payment_date } = req.body; // נוסיף את מספר הקבלה מגוף הבקשה
+  const query =
+    "UPDATE PAYMENTS SET notes = ?, receipt_number = ? , payment_date = ? WHERE payment_id = ?";
 
-  db.query(query, [notes, receipt_number,payment_date, id], (error, results) => {
-    if (error) {
-      console.error("Error updating notes and receipt number:", error);
-      res.status(500).send("Error updating notes and receipt number");
-    } else {
-      res.send("Notes and receipt number updated successfully");
-      console.log("Notes and receipt number updated successfully", results);
+  db.query(
+    query,
+    [notes, receipt_number, payment_date, id],
+    (error, results) => {
+      if (error) {
+        console.error("Error updating notes and receipt number:", error);
+        res.status(500).send("Error updating notes and receipt number");
+      } else {
+        res.send("Notes and receipt number updated successfully");
+        console.log("Notes and receipt number updated successfully", results);
+      }
     }
-  });
+  );
 });
-
 
 // מסלול לשליחת תזכורת
 router.post("/send-reminder", (req, res) => {
@@ -436,8 +457,8 @@ router.post("/send-reminder", (req, res) => {
       return res.status(404).send("Payment not found or already paid");
     }
 
-    console.log("res ----",results[0]);
-    
+    console.log("res ----", results[0]);
+
     // שליפת נתונים מהתוצאה
     const { customer_email, customer_name, order_id } = results[0];
 
@@ -450,7 +471,5 @@ router.post("/send-reminder", (req, res) => {
       });
   });
 });
-
-
 
 module.exports = router;

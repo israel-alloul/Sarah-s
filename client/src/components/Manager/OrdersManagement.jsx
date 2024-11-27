@@ -108,17 +108,33 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error updating order:", error));
   };
 
-  const fetchPickupOrders = () => {
-    fetch("http://localhost:5000/admin/orders/pickup-next-week")
+  const fetchPickupOrders = (address) => {
+    fetch(`http://localhost:5000/admin/orders/pickup-next-week${address ? `?address=${address}` : ''}`)
       .then((response) => response.json())
-      .then((data) => setFilteredOrders(data))
+      .then((data) => {
+        console.log("Filtered orders:", data);
+        setFilteredOrders(data);
+      })
       .catch((error) => console.error("Error fetching filtered orders:", error));
   };
+  
+  const fetchAllOrders = () => {
+    fetch("http://localhost:5000/admin/orders")
+      .then((response) => response.json())
+      .then((data) => setFilteredOrders(data))
+      .catch((error) => console.error("Error fetching all orders:", error));
+  };
+  
 
   return (
     <div>
       <h1>ניהול הזמנות</h1>
-      <button onClick={fetchPickupOrders}>הזמנות לאיסוף עצמי</button>
+      <button onClick={() => fetchPickupOrders("איסוף עצמי")}>הזמנות לאיסוף עצמי</button>
+      <button onClick={() => fetchPickupOrders("משלוח")}>הזמנות משלוח</button>
+      <button onClick={fetchAllOrders}>נקה הכל</button>
+
+
+
       <table>
         <thead>
           <tr>
@@ -126,7 +142,7 @@ const OrdersManagement = () => {
             <th>שם לקוח</th>
             <th>מספר משתמש</th>
             <th>סכום כולל</th>
-            <th>תאריך</th>
+            <th>הזמנה תאריך</th>
             <th>סטטוס</th>
             <th>סוג משלוח</th>
             <th>פרטים</th>
@@ -141,7 +157,8 @@ const OrdersManagement = () => {
               <td>{order.customer_name}</td> 
               <td>{order.user_id}</td>
               <td>{order.total_price} ₪</td>
-              <td>{formatDate(order.order_date)}</td>
+              <td>{formatDate(order.planned_date || order.order_date)}</td>
+              {/* <td>{formatDate(order.delivery_date)} {order.delivery_time}</td> */}
               {/* <td>{order.status}</td> */}
               <td>
                 <select
