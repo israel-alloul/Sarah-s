@@ -4,20 +4,23 @@ import { CartContext } from "../../context/CartContext";
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useContext(CartContext);
-  
+
   const navigate = useNavigate();
-  
+
   const handleContinueShopping = () => {
     navigate("/cakes"); // מחזיר לדף הקטגוריה כדי להמשיך בקניות
   };
 
   const handleCheckout = () => {
-    navigate("/checkout"); // מעביר לדף התחברות/רישום
+    navigate("/checkout", { state: { cartItems } }); // מעביר לדף התחברות/רישום
   };
 
   // פונקציה לחישוב סך הכל של כל הפריטים בסל
   const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   };
 
   return (
@@ -29,15 +32,28 @@ const Cart = () => {
         <div>
           {cartItems.map((item) => (
             <div key={item.id} className="cart-item">
-              <img src={item.image} alt={item.name} style={{ width: "50px", height: "50px" }} />
+              <img
+                src={item.image}
+                alt={item.name}
+                style={{ width: "50px", height: "50px" }}
+              />
               <div>
                 <h3>{item.name}</h3>
                 <p>מחיר יחידה: {item.price} ₪</p>
-                <p>מחיר כולל: {item.price * item.quantity} ₪</p> {/* מחיר פריט כפול כמות */}
+                <p>מחיר כולל: {item.price * item.quantity} ₪</p>{" "}
+                {/* מחיר פריט כפול כמות */}
                 <div className="quantity-control">
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  >
+                    -
+                  </button>
                   <span>{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  >
+                    +
+                  </button>
                 </div>
                 <button onClick={() => removeFromCart(item.id)}>הסר</button>
               </div>

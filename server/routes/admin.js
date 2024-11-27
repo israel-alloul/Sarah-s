@@ -244,50 +244,49 @@ router.put("/orders/:orderId", (req, res) => {
 
 router.get("/orders/pickup-next-week", async (req, res) => {
   try {
-  const today = new Date(); // התאריך הנוכחי
-  const oneWeekFromNow = new Date();
-  oneWeekFromNow.setDate(today.getDate() + 7);
-
-  // עיצוב התאריכים לפורמט YYYY-MM-DD
-  const formattedToday = today.toISOString().split("T")[0];
-  const formattedOneWeekFromNow = oneWeekFromNow.toISOString().split("T")[0];
-
-  const query = `
-    SELECT 
-      o.order_id, 
-      o.user_id, 
-      u.username AS customer_name, 
-      o.total_price, 
-      o.order_date, 
-      o.status, 
-      o.address 
-    FROM 
-      orders o
-    JOIN 
-      users u 
-    ON 
-      o.user_id = u.id
-    WHERE 
-      o.status = 'ממתין לטיפול' 
-      AND o.address = 'איסוף עצמי'
-      AND o.order_date BETWEEN ? AND ?
-  `;
-
-  // העברת הטווח לשאילתה
-  db.query(query, [formattedToday, formattedOneWeekFromNow], (err, results) => {
-    if (err) {
-      console.error("Error fetching filtered orders:", err);
-      res.status(500).json({ message: "Server error" });
-    } else {
-      console.log("Filtered orders fetched from database:", results);
-      res.json(results);
-    }
-  });
-} catch (error) {
-  console.error("Error fetching filtered orders:", error);
-  res.status(500).json({ message: "Error fetching orders" });
+    const today = new Date(); // תאריך נוכחי
+    const oneWeekFromNow = new Date();
+    oneWeekFromNow.setDate(today.getDate() + 7);
   
-}
+    // עיצוב התאריכים לפורמט YYYY-MM-DD
+    const formattedToday = today.toISOString().split("T")[0];
+    const formattedOneWeekFromNow = oneWeekFromNow.toISOString().split("T")[0];
+  
+    const query = `
+      SELECT 
+        o.order_id, 
+        o.user_id, 
+        u.username AS customer_name, 
+        o.total_price, 
+        o.planned_date, 
+        o.status, 
+        o.address 
+      FROM 
+        orders o
+      JOIN 
+        users u 
+      ON 
+        o.user_id = u.id
+      WHERE 
+        o.status = 'ממתין לטיפול' 
+        AND o.address = 'איסוף עצמי'
+        AND o.planned_date BETWEEN ? AND ?
+    `;
+  
+    db.query(query, [formattedToday, formattedOneWeekFromNow], (err, results) => {
+      if (err) {
+        console.error("Error fetching filtered orders:", err);
+        res.status(500).json({ message: "Server error" });
+      } else {
+        console.log("Filtered orders fetched from database:", results);
+        res.json(results);
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching filtered orders:", error);
+    res.status(500).json({ message: "Error fetching orders" });
+  }
+  
 
 });
 

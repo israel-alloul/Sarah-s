@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { authenticateToken } = require("./Middleware");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
@@ -121,6 +122,7 @@ app.post("/api/auth/register", async (req, res) => {
 //////////////////////////////////////////////////////////////////////////
 app.get("/api/products", (req, res) => {
   const { type } = req.query; // קבלת type מהשאילתה
+  
 
   // בדיקה אם יש ערך ל-type, אחרת שליפה של כל המוצרים
   let sql = "SELECT * FROM products";
@@ -140,26 +142,109 @@ app.get("/api/products", (req, res) => {
 
 /////////////////////////
 // מסלול ליצירת הזמנה
+// app.post("/api/orders", authenticateToken, (req, res) => {
+//   const userId = req.userId;
+//   const {
+//     cartItems,
+//     totalPrice,
+//     address,
+//     isDelivery,
+//     paymentMethod,
+//     plannedDate,
+//   } = req.body;
+//   console.log("******", req.body);
+
+//   console.log("Cart items:", cartItems);
+//   console.log("paymentMethod:", paymentMethod);
+//   console.log("isDelivery:", isDelivery);
+
+//   if (!Array.isArray(cartItems) || cartItems.length === 0) {
+//     return res.status(400).json({ message: "Invalid product details" });
+//   }
+
+//   const insertOrderQuery =
+//     "INSERT INTO orders (user_id, total_price, address,order_date,planned_date) VALUES (?, ?, ?, NOW(), ?)";
+//   // console.log("******",plannedDate);
+
+//   db.query(
+//     insertOrderQuery,
+//     [userId, totalPrice, address, plannedDate || null],
+//     (err, result) => {
+//       if (err) {
+//         console.error("Error inserting order:", err);
+//         return res.status(500).json({ message: "Server error" });
+//       }
+//       res
+//         .status(201)
+//         .json({
+//           message: "Order created successfully",
+//           orderId: result.insertId,
+//         });
+
+//       const orderId = result.insertId;
+
+//       const orderItemsQuery =
+//         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ?";
+//       const orderItems = cartItems.map((item) => [
+//         orderId,
+//         item.id,
+//         item.quantity,
+//         item.price,
+//       ]);
+
+//       db.query(orderItemsQuery, [orderItems], (err) => {
+//         if (err) {
+//           console.error("Error inserting order items:", err);
+//           return res.status(500).json({ message: "Server error" });
+//         }
+
+//         // הוספת הרשומה לטבלת payments
+//         // הוצא את method מתוך paymentMethod אם הוא אובייקט
+//         const paymentMethodValue =
+//           typeof paymentMethod === "object"
+//             ? paymentMethod.method
+//             : paymentMethod;
+
+//         const insertPaymentQuery =
+//           "INSERT INTO payments (order_id, user_id, payment_date, amount, payment_method, status) VALUES (?, ?, NOW(), ?, ?, ?)";
+//         const paymentStatus =
+//           paymentMethodValue === "כרטיס אשראי" ? "שולם" : "ממתין";
+
+//         db.query(
+//           insertPaymentQuery,
+//           [orderId, userId, totalPrice, paymentMethodValue, paymentStatus],
+//           (err) => {
+//             if (err) {
+//               console.error("Error inserting payment:", err);
+//               return res.status(500).json({ message: "Server error" });
+//             }
+
+//             res
+//               .status(201)
+//               .json({ message: "Order and payment created successfully" });
+//           }
+//         );
+//       });
+//     }
+//   );
+// });
+
+///////////////..........................................................,,,,,,,,,,,,,,,,,,,,,,,,,
+
 app.post("/api/orders", authenticateToken, (req, res) => {
   const userId = req.userId;
-  const { cartItems, totalPrice, address, isDelivery, paymentMethod } =
-    req.body;
-
-  console.log("Cart items:", cartItems);
-  console.log("paymentMethod:", paymentMethod);
-  console.log("isDelivery:", isDelivery);
+  const { cartItems, totalPrice, address, isDelivery, paymentMethod, plannedDate } = req.body;
 
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     return res.status(400).json({ message: "Invalid product details" });
   }
 
   const insertOrderQuery =
-    "INSERT INTO orders (user_id, total_price, address,order_date) VALUES (?, ?, ?, NOW())";
-
-  db.query(insertOrderQuery, [userId, totalPrice, address], (err, result) => {
+    "INSERT INTO orders (user_id, total_price, address, order_date, planned_date) VALUES (?, ?, ?, NOW(), ?)";
+  db.query(insertOrderQuery, [userId, totalPrice, address, plannedDate || null], (err, result) => {
     if (err) {
       console.error("Error inserting order:", err);
-      return res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error while creating order" });
     }
 
     const orderId = result.insertId;
@@ -176,20 +261,16 @@ app.post("/api/orders", authenticateToken, (req, res) => {
     db.query(orderItemsQuery, [orderItems], (err) => {
       if (err) {
         console.error("Error inserting order items:", err);
-        return res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ message: "Server error while adding order items" });
       }
 
-      // הוספת הרשומה לטבלת payments
-      // הוצא את method מתוך paymentMethod אם הוא אובייקט
+      // טיפול בתשלום
       const paymentMethodValue =
-        typeof paymentMethod === "object"
-          ? paymentMethod.method
-          : paymentMethod;
+        typeof paymentMethod === "object" ? paymentMethod.method : paymentMethod;
 
       const insertPaymentQuery =
         "INSERT INTO payments (order_id, user_id, payment_date, amount, payment_method, status) VALUES (?, ?, NOW(), ?, ?, ?)";
-      const paymentStatus =
-        paymentMethodValue === "כרטיס אשראי" ? "שולם" : "ממתין";
+      const paymentStatus = paymentMethodValue === "כרטיס אשראי" ? "שולם" : "ממתין";
 
       db.query(
         insertPaymentQuery,
@@ -197,19 +278,54 @@ app.post("/api/orders", authenticateToken, (req, res) => {
         (err) => {
           if (err) {
             console.error("Error inserting payment:", err);
-            return res.status(500).json({ message: "Server error" });
+            return res.status(500).json({ message: "Server error while processing payment" });
           }
 
-          res
-            .status(201)
-            .json({ message: "Order and payment created successfully" });
+          // תגובה סופית
+          return res.status(201).json({
+            message: "Order and payment created successfully",
+            orderId,
+          });
         }
       );
     });
   });
 });
 
-///////////////ממשק מנהל
+
+
+// שליחת מייל באמצעות טופס יצירת קשר
+app.post('/contact', async (req, res) => {
+  const { name, email, message } = req.body;
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+  });
+  const mailOptions = {
+      from: "ic7.alloul@gmail.com",
+      to: "ic7.alloul@gmail.com",
+      subject: `New Contact Form Submission from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+  };
+  try {
+      await transporter.sendMail(mailOptions);
+      res.status(200).json({ message: 'Email sent successfully!' });
+  } catch (error) {
+      console.error('Error sending email:', error);
+      res.status(500).json({ message: 'Failed to send email' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = db;
 // הפעלת השרת

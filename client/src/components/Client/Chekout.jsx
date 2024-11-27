@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
@@ -8,6 +7,7 @@ const Checkout = () => {
   const [isDelivery, setIsDelivery] = useState(false);
   const [address, setAddress] = useState("");
   const [deliveryFee, setDeliveryFee] = useState(0);
+  const [plannedDate, setPlannedDate] = useState("");
   const navigate = useNavigate();
 
   const handleOptionChange = (e) => {
@@ -20,15 +20,30 @@ const Checkout = () => {
     setAddress(e.target.value);
   };
 
+  const handleDateChange = (e) => {
+    setPlannedDate(e.target.value);
+  };
+
   const handleContinueToPayment = () => {
-    // בדיקה אם המשתמש מחובר
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    if (!plannedDate) {
+      alert("אנא בחר תאריך להזמנה");
+      return;
+    }
+
+    const selectedDate = new Date(plannedDate);
+    const today = new Date();
+    if (selectedDate < today) {
+      alert("התאריך שנבחר לא יכול להיות בעבר");
+      return;
+    }
+
     if (isLoggedIn) {
-      // המשך לתשלום (פה ניתן להוסיף ניווט לעמוד התשלום בפועל)
-      alert('ממשיכים לתשלום...');
-      navigate("/payment", { state: { address, deliveryFee, cartItems, isDelivery } });
+      navigate("/payment", { 
+        state: { address, deliveryFee, cartItems, isDelivery, plannedDate } 
+      });
     } else {
-      // ניתוב לעמוד ההתחברות
       navigate("/login");
     }
   };
@@ -63,6 +78,11 @@ const Checkout = () => {
           <input type="text" value={address} onChange={handleAddressChange} />
         </div>
       )}
+
+      <div>
+        <label>בחר תאריך להזמנה:</label>
+        <input type="date" value={plannedDate} onChange={handleDateChange} />
+      </div>
       
       <h3>סה"כ לתשלום: {cartItems.reduce((total, item) => total + item.price * item.quantity, 0) + deliveryFee} ₪</h3>
       <button onClick={handleContinueToPayment}>המשך לתשלום</button>

@@ -1,56 +1,65 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { cartItems, address, deliveryFee, isDelivery } = location.state || {};
-  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0) + deliveryFee;
+  const { cartItems, address, deliveryFee, isDelivery, plannedDate } =
+    location.state || {};
+  console.log("cartItems:", cartItems);
 
-  const [paymentMethod, setPaymentMethod] = useState(''); 
-  const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
+  const totalPrice =
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0) +
+    deliveryFee;
+
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
 
   const handleInputChange = (setter) => (e) => setter(e.target.value);
 
   const createOrder = async () => {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("אנא התחבר תחילה.");
       navigate("/login");
       return;
     }
     try {
-      const response = await fetch('http://localhost:5000/api/orders', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           cartItems,
-          address: isDelivery ? address : 'איסוף עצמי',
+          address: isDelivery ? address : "איסוף עצמי",
           totalPrice,
           isDelivery,
           paymentMethod: {
             method: paymentMethod,
-            details: paymentMethod === 'Credit Card' ? { cardName, cardNumber, expiryDate, cvv } : {}
-          }
-        })
+            details:
+              paymentMethod === "Credit Card"
+                ? { cardName, cardNumber, expiryDate, cvv }
+                : {},
+          },
+          plannedDate: plannedDate,
+        }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert('הזמנה נוצרה בהצלחה!');
-        navigate('/');
+        alert("הזמנה נוצרה בהצלחה!");
+        navigate("/");
       } else {
         alert(`שגיאה: ${data.message}`);
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      alert('שגיאה ביצירת ההזמנה.');
+      alert("שגיאה ביצירת ההזמנה.");
     }
   };
 
@@ -65,16 +74,19 @@ const Payment = () => {
 
       <h3>בחר אמצעי תשלום</h3>
       <div>
-        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+        <select
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+        >
           <option value=""> בחר אמצעי תשלום</option>
           <option value="Credit Card">כרטיס אשראי</option>
           <option value="מזומן">מזומן</option>
-        <option value="שיק">שיק</option>
+          <option value="שיק">שיק</option>
           <option value="העברה בנקאית">העברה בנקאית</option>
         </select>
       </div>
 
-      {paymentMethod === 'Credit Card' && (
+      {paymentMethod === "Credit Card" && (
         <div>
           <h3>פרטי כרטיס אשראי</h3>
           <div>
@@ -119,19 +131,19 @@ const Payment = () => {
         </div>
       )}
 
-      {paymentMethod === 'מזומן' && (
+      {paymentMethod === "מזומן" && (
         <div>
           <p>תשלום דרך PayPal יתבצע בעת לחיצה על הכפתור למטה.</p>
         </div>
       )}
 
-      {paymentMethod === 'שיק' && (
+      {paymentMethod === "שיק" && (
         <div>
           <p>פרטי שיק יינתנו לאחר השלמת ההזמנה.</p>
         </div>
       )}
 
-      {paymentMethod === 'העברה בנקאית' && (
+      {paymentMethod === "העברה בנקאית" && (
         <div>
           <p>פרטי להעברה בנקאית יינתנו לאחר השלמת ההזמנה.</p>
         </div>
