@@ -6,7 +6,6 @@ import '../assets/stylesClient/Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('customer'); // שמירת סוג המשתמש
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -22,10 +21,13 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token); // שמירת ה-token ב-localStorage
-        localStorage.setItem('isLoggedIn', 'true'); 
+        localStorage.setItem('role',data.role);
+        localStorage.setItem('isLoggedIn', 'true');
+        console.log(data.role);
+         
 
         // ניווט לפי סוג המשתמש
-        if (userType === 'manager') {
+        if (data.role === 'manager') {
           navigate('/dashboard');
         } else {
           alert('התחברות מוצלחת כלקוח!');
@@ -43,10 +45,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <h2>התחברות</h2>
-      <select value={userType} onChange={(e) => setUserType(e.target.value)}>
-        <option value="customer">לקוח</option>
-        <option value="manager">מנהל</option>
-      </select>
+      
       <input
         type="text"
         placeholder="אימייל"

@@ -1,0 +1,42 @@
+/* Dashboard.module.css */
+
+.dashboardContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .dashboardTitle {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .dashboardList {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .dashboardListItem {
+    margin: 15px 0;
+  }
+  
+  .dashboardLink {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 18px;
+    color: #fff;
+    background-color: #007bff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dashboardLink:hover {
+    background-color: #0056b3;
+  }
+  

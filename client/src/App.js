@@ -55,6 +55,14 @@ function App() {
           <Route path="/cakes" element={<ProductList products={products} type="cakes"/>} />
           <Route path="/cakes/:category" element={<ProductList category="עוגות" products={products} />} />
           <Route path="/product/:productId" element={<ProductDetails products={products} />} />
+          {/* /////////////////////////// */}
+
+
+          
+
+
+
+
 
           <Route path="/fruit-trays" element={<ProductList products={products} type="fruit-trays"/>} />
           <Route path="/fruit-trays/:category" element={<ProductList category="מגש פירות'" products={products} />} />

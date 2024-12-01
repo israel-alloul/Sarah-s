@@ -189,30 +189,86 @@ router.put("/orders/:orderId/status", (req, res) => {
 });
 
 // נתיב לעדכון פריטים של ההזמנה
+// router.put("/orders/:orderId/update", (req, res) => {
+//   const { orderId } = req.params;
+//   const { items } = req.body;
+
+//   // דוגמה לביצוע עדכון עבור פרטי ההזמנה ב-Database
+//   items.forEach((item) => {
+//     const sql = `UPDATE order_items SET quantity = ?, price = ? WHERE order_item_id = ? AND order_id = ?`;
+//     console.log("Updating order item:", item);
+//     db.query(
+//       sql,
+//       [item.quantity, item.price, item.order_item_id, orderId],
+//       (err, result) => {
+//         if (err) {
+//           console.error("Error updating order item:", err);
+//           res.status(500).json({ message: "שגיאה בעדכון פריט בהזמנה." });
+//           return;
+//         }
+//         console.log("Order item updated successfully:", result);
+//       }
+//     );
+//   });
+
+//   res.status(200).json({ message: "ההזמנה עודכנה בהצלחה." });
+// });
+
 router.put("/orders/:orderId/update", (req, res) => {
   const { orderId } = req.params;
   const { items } = req.body;
 
-  // דוגמה לביצוע עדכון עבור פרטי ההזמנה ב-Database
+  // משתנה לספירת הפריטים שהושלמו (כדי לדעת מתי לסיים את כל התהליך)
+  let completedUpdates = 0;
+
+  // עדכון פריטים ב-order_items
   items.forEach((item) => {
     const sql = `UPDATE order_items SET quantity = ?, price = ? WHERE order_item_id = ? AND order_id = ?`;
-    console.log("Updating order item:", item);
     db.query(
       sql,
       [item.quantity, item.price, item.order_item_id, orderId],
       (err, result) => {
         if (err) {
           console.error("Error updating order item:", err);
-          res.status(500).json({ message: "שגיאה בעדכון פריט בהזמנה." });
-          return;
+          return res.status(500).json({ message: "שגיאה בעדכון פריט בהזמנה." });
         }
-        console.log("Order item updated successfully:", result);
+
+        completedUpdates++;
+
+        // בדיקה אם כל העדכונים הסתיימו
+        if (completedUpdates === items.length) {
+          // לאחר שכל הפריטים עודכנו, חישוב הסכום הכולל מחדש
+          const totalPriceSql = `
+            SELECT SUM(quantity * price) AS total_price
+            FROM order_items
+            WHERE order_id = ?
+          `;
+
+          db.query(totalPriceSql, [orderId], (err, results) => {
+            if (err) {
+              console.error("Error calculating total price:", err);
+              return res.status(500).json({ message: "שגיאה בחישוב הסכום הכולל." });
+            }
+
+            const totalPrice = results[0].total_price;
+
+            // עדכון הסכום הכולל ב-orders
+            const updateOrderSql = `UPDATE orders SET total_price = ? WHERE order_id = ?`;
+            db.query(updateOrderSql, [totalPrice, orderId], (err, result) => {
+              if (err) {
+                console.error("Error updating total price in orders:", err);
+                return res.status(500).json({ message: "שגיאה בעדכון סכום ההזמנה." });
+              }
+
+              res.status(200).json({ message: "ההזמנה והסכום הכולל עודכנו בהצלחה." });
+            });
+          });
+        }
       }
     );
   });
-
-  res.status(200).json({ message: "ההזמנה עודכנה בהצלחה." });
 });
+
 
 // נתיב לעדכון פריטים של ההזמנה
 router.put("/orders/:orderId", (req, res) => {
@@ -242,10 +298,27 @@ router.put("/orders/:orderId", (req, res) => {
   );
 });
 
+
+// מחיקת פריט הזמנה לפי product_id
+router.delete('/orders/items/:productId', async (req, res) => {
+  const productId = req.params.productId;
+
+  try {
+    // מחיקת הפריט מטבלת ORDER_ITEM
+    await db.query('DELETE FROM order_items WHERE product_id = ?', [productId]);
+
+    res.status(200).send({ message: 'המוצר נמחק בהצלחה מהזמנה' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'שגיאה במחיקת הפריט מהזמנה' });
+  }
+});
+
+
+
+// נתיב להצגת הזמנות שמוכנות לאיסוף ומשלוח
 router.get("/orders/pickup-next-week", async (req, res) => {
   const address = req.query.address === "איסוף עצמי";
-
-
   try {
     const today = new Date();
     const oneWeekFromNow = new Date();
@@ -323,6 +396,10 @@ router.get("/orders/pickup-next-week", async (req, res) => {
 //   });
 // });
 
+
+
+
+                  ////////////////////////////תשלום////////////////////////
 // נתיב להצגת פרטי תשלום
 router.get("/payments", (req, res) => {
   console.log("Fetching payments...");

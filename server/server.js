@@ -140,6 +140,23 @@ app.get("/api/products", (req, res) => {
   });
 });
 
+// מסלול לשליפת מוצר
+app.get("/api/products/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT * FROM products WHERE id = ?";
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      res.status(500).json({ message: "Error fetching product" });
+    } else if (result.length === 0) {
+      res.status(404).json({ message: "Product not found" });
+    } else {
+      res.json(result[0]);
+    }
+  });
+});
+
+
+
 /////////////////////////
 // מסלול ליצירת הזמנה
 // app.post("/api/orders", authenticateToken, (req, res) => {
