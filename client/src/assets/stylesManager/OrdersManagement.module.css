@@ -1,0 +1,161 @@
+.ordersContainer {
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+}
+
+.header {
+  font-size: 26px;
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filterButton, .clearButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filterButton:hover, .clearButton:hover {
+  background-color: #0056b3;
+}
+
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.ordersTable th, .ordersTable td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.ordersTable th {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+.orderRow:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.orderRow:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.statusSelect {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.detailsButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.detailsButton:hover {
+  background-color: #218838;
+}
+
+/* Modal Styling */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 40%;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
+  transition: color 0.3s ease;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.modalHeader {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.modalField {
+  margin-bottom: 15px;
+}
+
+.modalField label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.modalField input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  font-size: 16px;
+}
+
+.saveButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 0 auto;
+}
+
+.saveButton:hover {
+  background-color: #0056b3;
+}

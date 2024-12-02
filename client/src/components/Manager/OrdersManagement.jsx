@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import '../../assets/stylesManager/OrdersManagement.css';
+import styles from '../../assets/stylesManager/OrdersManagement.module.css';
+
+
 
 const OrdersManagement = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filteredOrders, setFilteredOrders] = useState([]);
-  
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState({
     address: "",
     delivery_date: "",
     delivery_time: ""
   });
+
   const navigate = useNavigate();
 
-  // שליפת ההזמנות מהשרת
   useEffect(() => {
     fetch("http://localhost:5000/admin/orders")
       .then((response) => response.json())
@@ -23,13 +24,10 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
 
-
   const handleStatusChange = (orderId, newStatus) => {
     fetch(`http://localhost:5000/admin/orders/${orderId}/status`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     })
       .then((response) => {
@@ -44,7 +42,7 @@ const OrdersManagement = () => {
       })
       .catch((error) => console.error("Error updating status:", error));
   };
-  
+
   const handleViewOrderDetails = (orderId) => {
     navigate(`/manager/orders/${orderId}/details`);
   };
@@ -70,15 +68,8 @@ const OrdersManagement = () => {
   };
 
   const handleSaveChanges = () => {
-    // if (!selectedOrder) return;
-    console.log(selectedOrder);
-    
-
-
     const dateObject = new Date(editData.delivery_date);
     const formattedDate = dateObject.toISOString().split('T')[0];
-
-
     const updatedOrder = {
       ...selectedOrder,
       address: editData.address,
@@ -88,16 +79,13 @@ const OrdersManagement = () => {
 
     fetch(`http://localhost:5000/admin/orders/${selectedOrder.order_id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedOrder),
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to update order");
         }
-        // Update orders list locally
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.order_id === selectedOrder.order_id ? updatedOrder : order
@@ -111,74 +99,68 @@ const OrdersManagement = () => {
   const fetchPickupOrders = (address) => {
     fetch(`http://localhost:5000/admin/orders/pickup-next-week${address ? `?address=${address}` : ''}`)
       .then((response) => response.json())
-      .then((data) => {
-        console.log("Filtered orders:", data);
-        setFilteredOrders(data);
-      })
+      .then((data) => setFilteredOrders(data))
       .catch((error) => console.error("Error fetching filtered orders:", error));
   };
-  
+
   const fetchAllOrders = () => {
     fetch("http://localhost:5000/admin/orders")
       .then((response) => response.json())
       .then((data) => setFilteredOrders(data))
       .catch((error) => console.error("Error fetching all orders:", error));
   };
-  
 
   return (
-    <div>
-      <h1>ניהול הזמנות</h1>
-      <button onClick={() => fetchPickupOrders("איסוף עצמי")}>הזמנות לאיסוף עצמי</button>
-      <button onClick={() => fetchPickupOrders("משלוח")}>הזמנות משלוח</button>
-      <button onClick={fetchAllOrders}>נקה הכל</button>
+    <div className={styles.ordersContainer}>
+      <h1 className={styles.header}>ניהול הזמנות</h1>
+      <div className={styles.buttonsContainer}>
+        <button className={styles.filterButton} onClick={() => fetchPickupOrders("איסוף עצמי")}>
+          הזמנות לאיסוף עצמי
+        </button>
+        <button className={styles.filterButton} onClick={() => fetchPickupOrders("משלוח")}>
+          הזמנות משלוח
+        </button>
+        <button className={styles.clearButton} onClick={fetchAllOrders}>נקה הכל</button>
+      </div>
 
-
-
-      <table>
+      <table className={styles.ordersTable}>
         <thead>
           <tr>
             <th>מספר הזמנה</th>
             <th>שם לקוח</th>
             <th>מספר משתמש</th>
             <th>סכום כולל</th>
-            <th>הזמנה תאריך</th>
+            <th>תאריך הזמנה</th>
             <th>סטטוס</th>
             <th>סוג משלוח</th>
             <th>פרטים</th>
           </tr>
         </thead>
         <tbody>
-          
           {(filteredOrders.length > 0 ? filteredOrders : orders).map((order) => (
-
-            <tr key={order.order_id}>
+            <tr key={order.order_id} className={styles.orderRow}>
               <td>{order.order_id}</td>
-              <td>{order.customer_name}</td> 
+              <td>{order.customer_name}</td>
               <td>{order.user_id}</td>
               <td>{order.total_price} ₪</td>
               <td>{formatDate(order.planned_date || order.order_date)}</td>
-              {/* <td>{formatDate(order.delivery_date)} {order.delivery_time}</td> */}
-              {/* <td>{order.status}</td> */}
               <td>
                 <select
+                  className={styles.statusSelect}
                   value={order.status}
-                  onChange={(e) =>
-                    handleStatusChange(order.order_id, e.target.value)
-                  }
+                  onChange={(e) => handleStatusChange(order.order_id, e.target.value)}
                 >
                   <option value="ממתין לטיפול">ממתין לטיפול</option>
                   <option value="בהכנה">בהכנה</option>
                   <option value="הושלם">הושלם</option>
                 </select>
               </td>
-          
               <td>{order.address === "איסוף עצמי" ? "איסוף עצמי" : "משלוח"}</td>
               <td>
-                <button onClick={() => handleViewOrderDetails(order.order_id)}>
+                <button className={styles.detailsButton} onClick={() => handleViewOrderDetails(order.order_id)}>
                   הצג פריטים
                 </button>
-                <button onClick={() => handleViewDeliveryDetails(order)}>
+                <button className={styles.detailsButton} onClick={() => handleViewDeliveryDetails(order)}>
                   פרטי משלוח/איסוף
                 </button>
               </td>
@@ -188,13 +170,13 @@ const OrdersManagement = () => {
       </table>
 
       {showModal && selectedOrder && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeModal}>
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <span className={styles.close} onClick={closeModal}>
               &times;
             </span>
-            <h2>פרטי משלוח / איסוף עצמי</h2>
-            <div>
+            <h2 className={styles.modalHeader}>פרטי משלוח / איסוף עצמי</h2>
+            <div className={styles.modalField}>
               <label>כתובת משלוח:</label>
               <input
                 type="text"
@@ -202,9 +184,8 @@ const OrdersManagement = () => {
                 value={editData.address}
                 onChange={handleInputChange}
               />
-           <p>{selectedOrder.address}</p>
             </div>
-            <div>
+            <div className={styles.modalField}>
               <label>תאריך משלוח / איסוף:</label>
               <input
                 type="date"
@@ -213,7 +194,7 @@ const OrdersManagement = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div>
+            <div className={styles.modalField}>
               <label>שעת משלוח / איסוף:</label>
               <input
                 type="time"
@@ -222,7 +203,7 @@ const OrdersManagement = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <button onClick={handleSaveChanges}>שמור שינויים</button>
+            <button className={styles.saveButton} onClick={handleSaveChanges}>שמור שינויים</button>
           </div>
         </div>
       )}
@@ -231,7 +212,6 @@ const OrdersManagement = () => {
 };
 
 export default OrdersManagement;
-
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../assets/stylesManager/OrdersManagement.css";
+import styles from "../../assets/stylesManager/PaymentsManagement.module.css";
 
 const PaymentsManagement = () => {
   const [payments, setPayments] = useState([]);
@@ -171,12 +171,13 @@ const PaymentsManagement = () => {
   
 
   return (
-    <div>
-      <h1>ניהול תשלומים</h1>
-      <div>
+    <div className={styles.paymentsContainer}>
+      <h1 className={styles.title}>ניהול תשלומים</h1>
+      <div className={styles.filtersContainer}>
         {/* הצגת פילטר */}
         <label>סטטוס תשלום:</label>
         <select
+          className={styles.filterSelect}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -185,15 +186,17 @@ const PaymentsManagement = () => {
           <option value="ממתין">ממתין</option>
           <option value="בוטל">בוטל</option>
         </select>
-
+  
         <label>תאריך:</label>
         <input
           type="date"
+          className={styles.filterInput}
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
         />
         <label>אמצעי תשלום:</label>
         <select
+          className={styles.filterSelect}
           value={paymentMethodFilter}
           onChange={(e) => setPaymentMethodFilter(e.target.value)}
         >
@@ -202,22 +205,22 @@ const PaymentsManagement = () => {
           <option value="שיק">צ'ק</option>
         </select>
       </div>
-
+  
       {/* שדה חיפוש */}
       <input
         type="text"
         placeholder="חפש לפי שם לקוח או מספר הזמנה"
+        className={styles.searchInput}
         value={searchTerm}
         onChange={handleSearch}
       />
-
-      <table>
+  
+      <table className={styles.paymentsTable}>
         <thead>
           <tr>
             <th>מספר תשלום</th>
-             <th>מספר לקוח</th>
+            <th>מספר לקוח</th>
             <th>שם לקוח</th>
-           
             <th>מספר הזמנה</th>
             <th>סכום</th>
             <th>סטטוס</th>
@@ -232,12 +235,12 @@ const PaymentsManagement = () => {
               <td>{payment.payment_id}</td>
               <td>{payment.user_id}</td>
               <td>{payment.customer_name}</td>
-              
               <td>{payment.order_id}</td>
               <td>{payment.amount} ₪</td>
-
+  
               <td>
                 <select
+                  className={styles.statusSelect}
                   value={payment.status}
                   onChange={(e) =>
                     handleStatusChange(payment.payment_id, e.target.value)
@@ -248,45 +251,44 @@ const PaymentsManagement = () => {
                   <option value="בוטל">בוטל</option>
                 </select>
               </td>
-
+  
               <td>
-                {payment.status === "שולם"
-                  ? formatDate(payment.payment_date)
-                  : "—"}
+                {payment.status === 'שולם' ? formatDate(payment.payment_date) : '—'}
               </td>
               <td>{payment.payment_method}</td>
               <td>
-                <button onClick={() => handleShowDetails(payment)}>
+                <button
+                  className={styles.detailsButton}
+                  onClick={() => handleShowDetails(payment)}
+                >
                   הצג פרטים
                 </button>
-                {/* {payment.status !== "שולם" && <button>אשר תשלום</button>} */}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
+  
       {/* Modal */}
       {selectedPayment && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={handleCloseModal}>
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <span className={styles.close} onClick={handleCloseModal}>
               &times;
             </span>
             <h2>פרטי תשלום</h2>
             <p>שם לקוח: {selectedPayment.customer_name}</p>
             <p>סוג תשלום: {selectedPayment.payment_method}</p>
-
-            {selectedPayment.status !== "שולם" && (
+  
+            {selectedPayment.status !== 'שולם' && (
               <div>
                 <label htmlFor="paymentDate">תאריך תשלום:</label>
                 <input
                   id="paymentDate"
                   type="date"
-                  value={selectedPayment.payment_date || ""}
+                  className={styles.input}
+                  value={selectedPayment.payment_date || ''}
                   onChange={(e) => {
-                    console.log(e.target.value);
-
                     setSelectedPayment({
                       ...selectedPayment,
                       payment_date: `${e.target.value} 00:00:00`,
@@ -295,23 +297,33 @@ const PaymentsManagement = () => {
                 />
               </div>
             )}
-
+  
             <label htmlFor="notes">הערות:</label>
-            <textarea id="notes" value={notes} onChange={handleNotesChange} />
+            <textarea
+              id="notes"
+              className={styles.notesTextarea}
+              value={notes}
+              onChange={handleNotesChange}
+            />
             <label htmlFor="receiptNumber">מספר קבלה:</label>
             <input
               id="receiptNumber"
               type="text"
+              className={styles.input}
               value={receiptNumber}
               onChange={handleReceiptNumberChange}
             />
-            <button onClick={handleSaveNotes}>שמור שינויים</button>
-            <td>
-            <button onClick={() => handleSendReminder(selectedPayment.payment_id)}>
-             שלח תזכורת
+            <button className={styles.saveButton} onClick={handleSaveNotes}>
+              שמור שינויים
             </button>
-          </td>
-
+            {selectedPayment.status !== 'שולם' && (
+              <button
+                className={styles.reminderButton}
+                onClick={() => handleSendReminder(selectedPayment.payment_id)}
+              >
+                שלח תזכורת
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -328,3 +340,6 @@ const formatDate = (dateString) => {
   const year = date.getFullYear().toString();
   return `${day}/${month}/${year}`;
 };
+
+
+/////////////////////////////////////////////////////

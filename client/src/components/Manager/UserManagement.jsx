@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import styles from '../../assets/stylesManager/UserManagement.module.css';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // קריאה לשרת כדי להביא את כל המשתמשים
     fetch('http://localhost:5000/admin/users')
       .then(response => response.json())
       .then(data => setUsers(data))
@@ -12,16 +12,15 @@ const UserManagement = () => {
   }, []);
 
   return (
-    <div>
-      <h1>ניהול משתמשים</h1>
-      <table>
+    <div className={styles.container}>
+      <h1 className={styles.title}>ניהול משתמשים</h1>
+      <table className={styles.table}>
         <thead>
           <tr>
             <th>מספר משתמש</th>
             <th>שם מלא</th>
             <th>דוא"ל</th>
             <th>טלפון</th>
-           
           </tr>
         </thead>
         <tbody>
@@ -31,7 +30,6 @@ const UserManagement = () => {
               <td>{user.username}</td>
               <td>{user.email}</td>
               <td>{user.phone}</td>
-              {/* הוסף שדות נוספים לפי הצורך */}
             </tr>
           ))}
         </tbody>
