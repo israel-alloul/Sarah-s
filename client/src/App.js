@@ -52,25 +52,20 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           
-          <Route path="/cakes" element={<ProductList products={products} type="cakes"/>} />
-          <Route path="/cakes/:category" element={<ProductList category="עוגות" products={products} />} />
-          <Route path="/product/:productId" element={<ProductDetails products={products} />} />
-          {/* /////////////////////////// */}
+          {/* עוגות  */}
+          <Route path="/cakes" element={<ProductList type="cakes" />} />
+          <Route path="/cakes/:category" element={<ProductList type="cakes" />} />
+          <Route path="/product/:productId" element={<ProductDetails />} />
 
-
-          
-
-
-
-
+         
 
           <Route path="/fruit-trays" element={<ProductList products={products} type="fruit-trays"/>} />
           <Route path="/fruit-trays/:category" element={<ProductList category="מגש פירות'" products={products} />} />
           <Route path="/product/:productId" element={<ProductDetails products={products} />} />
 
           <Route path="/trays" element={<ProductList products={products} type="trays"/>} />
-          <Route path="/trays/:category" element={<ProductList category="מגש מתןקים'" products={products} />} />
-          <Route path="/product/:productId" element={<ProductDetails products={products} />} />
+          <Route path="/trays/:category" element={<ProductList type = "trays" />} />
+          <Route path="/product/:productId" element={<ProductDetails  />} />
 
           <Route path="/chocolates" element={<ProductList products={products} type="chocolates"/>} />
           <Route path="/chocolates/:category" element={<ProductList category="מגש פירות'" products={products} />} />

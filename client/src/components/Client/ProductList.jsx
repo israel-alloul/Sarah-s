@@ -1,10 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import {Link, useParams } from 'react-router-dom';
 import ProductItem from './ProductItem';
 
 const ProductList = ({ type }) => {
-  
   const { category } = useParams(); // קבלת הקטגוריה מה-URL
   const [products, setProducts] = useState([]);
 
@@ -13,7 +11,6 @@ const ProductList = ({ type }) => {
       try {
         const response = await fetch(`http://localhost:5000/api/products?type=${type}`);
         const data = await response.json();
-        console.log("Fetched products:", data); // בדיקת הנתונים שהתקבלו מהשרת
         setProducts(data);
       } catch (error) {
         console.log("Error fetching products:", error);
@@ -22,6 +19,7 @@ const ProductList = ({ type }) => {
     fetchProducts();
   }, [type]);
 
+  // אם יש קטגוריה ב-URL, נסנן את המוצרים לפי קטגוריה
   const filteredProducts = category
     ? products.filter(product => product.category === category)
     : products;
