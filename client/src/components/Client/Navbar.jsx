@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import '../../assets/stylesClient/Navbar.css';
 
 const Navbar = () => {
@@ -26,8 +28,11 @@ const Navbar = () => {
         <button onClick={toggleLanguage}>
           {language === 'EN' ? 'עברית' : 'English'}
         </button>
-        <Link to="/login">Login</Link>
-        <Link to="/cart">סל הקניות</Link> {/* קישור לסל */}
+
+        <Link to="/login">
+                <AccountCircleIcon style={{ fontSize: 40, color: 'white' }} />
+        </Link>
+        <Link to="/cart"><ShoppingCartIcon style={{ fontSize: 40, color: 'white' }} /> </Link> {/* קישור לסל */}
       </div>
       <div className="navbar-center">
         <Link to="/">Logo</Link>

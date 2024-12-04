@@ -1,49 +1,66 @@
+/* Global container for the orders management page */
 .ordersContainer {
-  padding: 20px;
-  background-color: #f4f4f4;
-  border-radius: 8px;
+  padding: 30px;
+  background-color: #f4f6f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Header */
 .header {
-  font-size: 26px;
+  font-size: 28px;
   text-align: center;
   font-weight: bold;
   color: #333;
   margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
+/* Buttons container for filtering */
 .buttonsContainer {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
+/* Styling for filter and clear buttons */
 .filterButton, .clearButton {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
+  border-radius: 8px;
+  padding: 12px 25px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-transform: uppercase;
 }
 
 .filterButton:hover, .clearButton:hover {
   background-color: #0056b3;
+  transform: scale(1.05);
 }
 
+/* Orders table styling */
 .ordersTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .ordersTable th, .ordersTable td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: center;
+  font-size: 14px;
+  color: #555;
 }
 
 .ordersTable th {
@@ -53,7 +70,7 @@
 }
 
 .orderRow:nth-child(even) {
-  background-color: #f2f2f2;
+  background-color: #f9f9f9;
 }
 
 .orderRow:nth-child(odd) {
@@ -65,6 +82,7 @@
   padding: 8px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 14px;
   outline: none;
 }
 
@@ -73,13 +91,15 @@
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 8px 12px;
+  padding: 8px 16px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .detailsButton:hover {
   background-color: #218838;
+  transform: scale(1.05);
 }
 
 /* Modal Styling */
@@ -89,73 +109,132 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .modalContent {
   background-color: white;
   padding: 30px;
   border-radius: 8px;
-  width: 40%;
+  width: 50%;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 80%;
+  overflow-y: auto;
 }
 
+/* Close button in modal */
 .close {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
+  top: 15px;
+  right: 20px;
+  font-size: 30px;
   cursor: pointer;
   color: #aaa;
   transition: color 0.3s ease;
 }
 
 .close:hover {
-  color: #000;
-}
-
-.modalHeader {
-  font-size: 22px;
-  margin-bottom: 20px;
   color: #333;
 }
 
+/* Modal Header */
+.modalHeader {
+  font-size: 24px;
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Form Fields in Modal */
 .modalField {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .modalField label {
-  display: block;
+  font-size: 16px;
+  font-weight: 500;
   margin-bottom: 8px;
-  font-weight: bold;
+  display: block;
+  color: #333;
 }
 
 .modalField input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
+  border-radius: 8px;
   font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.modalField input:focus {
+  border-color: #007bff;
 }
 
 .saveButton {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
-  padding: 12px 20px;
+  border-radius: 8px;
+  padding: 12px 25px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
   display: block;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .saveButton:hover {
   background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Table rows hover effect */
+.ordersTable tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* Add spacing to the modal fields */
+.modalField input {
+  margin-top: 5px;
+}
+
+/* Add styling for the order number column */
+.ordersTable td:nth-child(1), .ordersTable th:nth-child(1) {
+  width: 120px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Add border-radius for the table */
+.ordersTable {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Add a subtle shadow to the buttons and table */
+.filterButton, .clearButton, .detailsButton, .saveButton {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.deleteButton {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.deleteButton:hover {
+  background-color: darkred;
 }

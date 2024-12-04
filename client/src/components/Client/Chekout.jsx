@@ -5,7 +5,15 @@ import { CartContext } from "../../context/CartContext";
 const Checkout = () => {
   const { cartItems } = useContext(CartContext);
   const [isDelivery, setIsDelivery] = useState(false);
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState({
+    city: "",
+    street: "",
+    houseNumber: "",
+    floor: "",
+    apartment: "",
+    buildingCode: "",
+    notes: ""
+  });
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [plannedDate, setPlannedDate] = useState("");
   const navigate = useNavigate();
@@ -17,7 +25,11 @@ const Checkout = () => {
   };
 
   const handleAddressChange = (e) => {
-    setAddress(e.target.value);
+    const { name, value } = e.target;
+    setAddress((prevAddress) => ({
+      ...prevAddress,
+      [name]: value
+    }));
   };
 
   const handleDateChange = (e) => {
@@ -71,11 +83,30 @@ const Checkout = () => {
           משלוח (תוספת {deliveryFee} ₪)
         </label>
       </div>
-      
+
       {isDelivery && (
         <div>
-          <label>כתובת למשלוח:</label>
-          <input type="text" value={address} onChange={handleAddressChange} />
+          <h3>פרטי כתובת למשלוח</h3>
+          <label>עיר:</label>
+          <input type="text" name="city" value={address.city} onChange={handleAddressChange} />
+
+          <label>רחוב:</label>
+          <input type="text" name="street" value={address.street} onChange={handleAddressChange} />
+
+          <label>מספר בית:</label>
+          <input type="text" name="houseNumber" value={address.houseNumber} onChange={handleAddressChange} />
+
+          <label>קומה:</label>
+          <input type="text" name="floor" value={address.floor} onChange={handleAddressChange} />
+
+          <label>דירה:</label>
+          <input type="text" name="apartment" value={address.apartment} onChange={handleAddressChange} />
+
+          <label>קוד לבניין:</label>
+          <input type="text" name="buildingCode" value={address.buildingCode} onChange={handleAddressChange} />
+
+          <label>הערות למשלוח:</label>
+          <textarea name="notes" value={address.notes} onChange={handleAddressChange}></textarea>
         </div>
       )}
 

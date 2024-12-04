@@ -10,6 +10,7 @@ const UserManagement = () => {
       .then(data => setUsers(data))
       .catch(error => console.error('Error fetching users:', error));
   }, []);
+  
 
   return (
     <div className={styles.container}>

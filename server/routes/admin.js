@@ -78,6 +78,7 @@ router.post("/products", (req, res) => {
   );
 });
 
+// מסלול להצגת רשימת משתמשים
 router.get("/users", async (req, res) => {
   try {
     // בקשה להבאת רשימת משתמשים עם ID, USERNAME ו-EMAIL בלבד
@@ -96,6 +97,9 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ message: "Error fetching users" });
   }
 });
+
+
+
 
 // נתיב להצגת ההזמנות למנהל
 router.get("/orders", async (req, res) => {
@@ -380,6 +384,38 @@ router.get("/orders/pickup-next-week", async (req, res) => {
     res.status(500).json({ message: "Error fetching orders" });
   }
 });
+// מחיקת הזמנה
+router.delete("/orders/:orderId", (req, res) => {
+  const { orderId } = req.params;
+
+  // מחיקת התשלומים הקשורים להזמנה
+  const deletePaymentsQuery = 'DELETE FROM payments WHERE order_id = ?';
+  db.query(deletePaymentsQuery, [orderId], (error) => {
+    if (error) {
+      console.error('שגיאה במחיקת תשלומים:', error);
+      return res.status(500).json({ message: 'שגיאה במחיקת תשלומים' });
+    }
+
+    // לאחר שמחקנו את התשלומים, ניתן למחוק את ההזמנה
+    const deleteOrderQuery = 'DELETE FROM orders WHERE order_id = ?';
+    db.query(deleteOrderQuery, [orderId], (error, results) => {
+      if (error) {
+        console.error('שגיאה במחיקת הזמנה:', error);
+        return res.status(500).json({ message: 'שגיאה במחיקת הזמנה' });
+      }
+
+      if (results.affectedRows > 0) {
+        res.status(200).json({ message: "ההזמנה נמחקה בהצלחה" });
+      } else {
+        res.status(404).json({ message: "ההזמנה לא נמצאה" });
+      }
+    });
+  });
+});
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

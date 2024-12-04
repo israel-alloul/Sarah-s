@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css"; 
 import styles from '../../assets/stylesManager/OrdersManagement.module.css';
 
 
@@ -16,6 +18,22 @@ const OrdersManagement = () => {
   });
 
   const navigate = useNavigate();
+  const parseAddress = (addressString) => {
+    const addressParts = addressString.split(", ");
+    const addressObj = {};
+  
+    addressParts.forEach((part) => {
+      const [label, value] = part.split(": ");
+      if (label && value) {
+        addressObj[label] = value;
+      }
+    });
+  
+    return addressObj;
+  };
+  const parsedAddress = parseAddress(selectedOrder?.address || "");
+
+
 
   useEffect(() => {
     fetch("http://localhost:5000/admin/orders")
@@ -43,8 +61,8 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error updating status:", error));
   };
 
-  const handleViewOrderDetails = (orderId) => {
-    navigate(`/manager/orders/${orderId}/details`);
+  const handleViewOrderDetails = (orderId, address) => {
+    navigate(`/manager/orders/${orderId}/details`, { state: { address } });
   };
 
   const handleViewDeliveryDetails = (order) => {
@@ -96,6 +114,9 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error updating order:", error));
   };
 
+
+  
+
   const fetchPickupOrders = (address) => {
     fetch(`http://localhost:5000/admin/orders/pickup-next-week${address ? `?address=${address}` : ''}`)
       .then((response) => response.json())
@@ -110,6 +131,26 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error fetching all orders:", error));
   };
 
+    // פעולה שמבצע כפתור "מחק את ההזמנה"
+    const handleDeleteOrder = (orderId) => {
+      if (window.confirm("האם אתה בטוח שברצונך למחוק את ההזמנה?")) {
+        fetch(`http://localhost:5000/admin/orders/${orderId}`, {
+          method: "DELETE", // מחיקת ההזמנה
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((response) => {
+            if (response.ok) {
+              alert("ההזמנה נמחקה בהצלחה!");
+              // עדכון הסטייט אחרי המחיקה
+              setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== orderId));
+            } else {
+              alert("שגיאה במחיקת ההזמנה");
+            }
+          })
+          .catch((error) => console.error("Error deleting order:", error));
+      }
+    };
+  
   return (
     <div className={styles.ordersContainer}>
       <h1 className={styles.header}>ניהול הזמנות</h1>
@@ -157,12 +198,20 @@ const OrdersManagement = () => {
               </td>
               <td>{order.address === "איסוף עצמי" ? "איסוף עצמי" : "משלוח"}</td>
               <td>
-                <button className={styles.detailsButton} onClick={() => handleViewOrderDetails(order.order_id)}>
+                <button className={styles.detailsButton} onClick={() => handleViewOrderDetails(order.order_id, order.address)}>
                   הצג פריטים
                 </button>
                 <button className={styles.detailsButton} onClick={() => handleViewDeliveryDetails(order)}>
-                  פרטי משלוח/איסוף
+                  פרטי משלוח/איסוף 
                 </button>
+                <button
+                  className={styles.deleteButton}
+                  onClick={() => handleDeleteOrder(order.order_id)}
+                >
+                  מחק הזמנה
+                </button>
+                {/* <ToastContainer /> */}
+
               </td>
             </tr>
           ))}
@@ -170,43 +219,60 @@ const OrdersManagement = () => {
       </table>
 
       {showModal && selectedOrder && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <span className={styles.close} onClick={closeModal}>
-              &times;
-            </span>
-            <h2 className={styles.modalHeader}>פרטי משלוח / איסוף עצמי</h2>
-            <div className={styles.modalField}>
-              <label>כתובת משלוח:</label>
-              <input
-                type="text"
-                name="address"
-                value={editData.address}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className={styles.modalField}>
-              <label>תאריך משלוח / איסוף:</label>
-              <input
-                type="date"
-                name="delivery_date"
-                value={editData.delivery_date}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className={styles.modalField}>
-              <label>שעת משלוח / איסוף:</label>
-              <input
-                type="time"
-                name="delivery_time"
-                value={editData.delivery_time}
-                onChange={handleInputChange}
-              />
-            </div>
-            <button className={styles.saveButton} onClick={handleSaveChanges}>שמור שינויים</button>
-          </div>
+  <div className={styles.modal}>
+    <div className={styles.modalContent}>
+      <span className={styles.close} onClick={closeModal}>
+        &times;
+      </span>
+      <h2 className={styles.modalHeader}>פרטי משלוח / איסוף עצמי</h2>
+
+      {/* הצגת פרטי הכתובת */}
+      {selectedOrder.address !== "איסוף עצמי" ? (
+
+        <div>
+          <h3>כתובת משלוח:</h3>
+          <p><strong>עיר:</strong> {parsedAddress['עיר']}</p>
+    <p><strong>רחוב:</strong> {parsedAddress['רחוב']}</p>
+    <p><strong>מספר בית:</strong> {parsedAddress['מספר בית']}</p>
+    <p><strong>קומה:</strong> {parsedAddress['קומה']}</p>
+    <p><strong>דירה:</strong> {parsedAddress['דירה']}</p>
+    <p><strong>קוד בניין:</strong> {parsedAddress['קוד בניין']}</p>
+    <p><strong>הערות:</strong> {parsedAddress['הערות']}</p>
+        </div>
+      ) : (
+        <div>
+          <h3>איסוף עצמי:</h3>
+          <p>הלקוח בחר באופציה של איסוף עצמי</p>
         </div>
       )}
+
+      {/* הצגת פרטי המשלוח או האיסוף */}
+      <div className={styles.modalField}>
+        <label>תאריך משלוח / איסוף:</label>
+        <input
+          type="date"
+          name="delivery_date"
+          value={editData.delivery_date}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className={styles.modalField}>
+        <label>שעת משלוח / איסוף:</label>
+        <input
+          type="time"
+          name="delivery_time"
+          value={editData.delivery_time}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <button className={styles.saveButton} onClick={handleSaveChanges}>
+        שמור שינויים
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

@@ -7,6 +7,7 @@ const Payment = () => {
   const { cartItems, address, deliveryFee, isDelivery, plannedDate } =
     location.state || {};
   console.log("cartItems:", cartItems);
+  const newAddress = `עיר: ${address.city}, רחוב: ${address.street}, מספר בית: ${address.houseNumber}, קומה: ${address.floor}, דירה: ${address.apartment}, קוד בניין: ${address.buildingCode}, הערות: ${address.notes}`;
 
   const totalPrice =
     cartItems.reduce((total, item) => total + item.price * item.quantity, 0) +
@@ -36,7 +37,7 @@ const Payment = () => {
         },
         body: JSON.stringify({
           cartItems,
-          address: isDelivery ? address : "איסוף עצמי",
+          address: isDelivery ? newAddress : "איסוף עצמי",
           totalPrice,
           isDelivery,
           paymentMethod: {
@@ -70,7 +71,17 @@ const Payment = () => {
   return (
     <div>
       <h2>תשלום</h2>
-      {address && <p>כתובת למשלוח: {address}</p>}
+      {isDelivery && (
+  <div>
+    <p>עיר: {address.city}</p>
+    <p>רחוב: {address.street}</p>
+    <p>מספר בית: {address.houseNumber}</p>
+    <p>קומה: {address.floor}</p>
+    <p>דירה: {address.apartment}</p>
+    <p>קוד לבניין: {address.buildingCode}</p>
+    <p>הערות: {address.notes}</p>
+  </div>
+)}
 
       <h3>בחר אמצעי תשלום</h3>
       <div>

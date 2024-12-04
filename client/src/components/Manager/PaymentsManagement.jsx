@@ -218,7 +218,7 @@ const PaymentsManagement = () => {
       <table className={styles.paymentsTable}>
         <thead>
           <tr>
-            <th>מספר תשלום</th>
+            
             <th>מספר לקוח</th>
             <th>שם לקוח</th>
             <th>מספר הזמנה</th>
@@ -232,7 +232,7 @@ const PaymentsManagement = () => {
         <tbody>
           {filteredPayments.map((payment) => (
             <tr key={payment.payment_id}>
-              <td>{payment.payment_id}</td>
+              
               <td>{payment.user_id}</td>
               <td>{payment.customer_name}</td>
               <td>{payment.order_id}</td>
