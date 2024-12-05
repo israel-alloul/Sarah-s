@@ -1,0 +1,48 @@
+.card {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.title {
+  margin-bottom: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.description {
+  margin-bottom: 12px;
+  color: #555;
+  text-align: justify;
+}
+
+.price {
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.quantityControl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.addToCartButton {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1.1rem;
+}

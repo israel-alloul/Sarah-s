@@ -69,11 +69,45 @@ app.post("/login", (req, res) => {
 
       // יצירת אסימון ושליחתו
       const token = generateToken(user);
-      res.json({ token, role: user.role });
+      res.json({ token, role: user.role ,username: user.username,email: user.email,phone: user.phone});
     } catch (error) {
       console.log("Error comparing password:", error);
       res.status(500).send("Server error");
     }
+  });
+});
+
+
+// מסלול עדכון פרופיל
+app.put("/api/update-profile", (req, res) => {
+  const { email, name, telephone,prevEmail } = req.body;
+  console.log(email, name, telephone,prevEmail);
+  
+  // בדיקה אם המשתמש קיים
+  const checkUserQuery = "SELECT * FROM users WHERE email = ?";
+  db.query(checkUserQuery, [prevEmail], (err, results) => {
+    if (err) {
+      console.log("Database error:", err);
+      return res.status(500).send("Server error");
+    }
+
+    if (results.length === 0) {
+      console.log("User not found");
+      return res.status(404).send("User not found");
+    }
+    const userId = results[0].id;
+
+    // עדכון הנתונים
+    const updateQuery = "UPDATE users SET username = ?, phone = ?, email = ? WHERE id = ?";
+    db.query(updateQuery, [name, telephone, email, userId], (err, result) => {
+      if (err) {
+        console.log("Error updating user:", err);
+        return res.status(500).send("Error updating user");
+      }
+
+      console.log("User updated successfully");
+      res.json({ message: "Profile updated successfully" });
+    });
   });
 });
 

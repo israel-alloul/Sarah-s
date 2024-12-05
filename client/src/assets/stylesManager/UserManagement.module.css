@@ -84,4 +84,33 @@
   }
   
   
+  .searchContainer {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .searchWrapper {
+    position: relative;
+    width: 300px;
+  }
+  
+  .searchInput {
+    width: 100%;
+    padding: 10px 40px 10px 10px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+  }
+  
+  .searchIcon {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 20px;
+    cursor: pointer;
+  }
   

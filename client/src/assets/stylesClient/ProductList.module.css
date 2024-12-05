@@ -1,0 +1,35 @@
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .grid {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .productLink {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .productLink:hover {
+    transform: scale(1.05);
+  }
+  
+  .loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+  }
+  
