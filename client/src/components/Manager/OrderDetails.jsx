@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 import styles from "../../assets/stylesManager/OrderDetails.module.css";
 
 const OrderDetails = () => {
@@ -92,10 +92,10 @@ const OrderDetails = () => {
   };
 
   // יצירת PDF
-  const handlePrintPDF = () => {
-    const element = document.getElementById("order-details");
-    html2pdf().from(element).save(`Order_${orderDetails.order_id}.pdf`);
-  };
+  // const handlePrintPDF = () => {
+  //   const element = document.getElementById("order-details");
+  //   html2pdf().from(element).save(`Order_${orderDetails.order_id}.pdf`);
+  // };
 
   const handlePrint = () => {
     window.print();
@@ -177,7 +177,7 @@ const OrderDetails = () => {
       </div>
 
       <div className={styles.actionButtons}>
-        <button className={styles.printButton} onClick={handlePrintPDF}>ייצא ל-PDF</button>
+        {/* <button className={styles.printButton} onClick={handlePrintPDF}>ייצא ל-PDF</button> */}
         <button className={styles.printButton} onClick={handlePrint}>הדפסה</button>
       </div>
 
