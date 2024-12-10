@@ -160,7 +160,9 @@ const Navbar = () => {
       </div>
 
       <div className="navbar-center">
-        <Link to="/">Logo</Link>
+        <Link to="/">
+        <img src="/images/logo.jpg" alt="logo" srcset="" style={{width: "150px", height: "100px"}}/>
+        </Link>
       </div>
 
       <div className="navbar-right">
