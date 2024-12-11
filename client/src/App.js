@@ -24,6 +24,7 @@ import OrdersManagement from './components/Manager/OrdersManagement';
 import UserManagement from './components/Manager/UserManagement';
 import OrderDetails from './components/Manager/OrderDetails';
 import PaymentsManagement from './components/Manager/PaymentsManagement';
+import ProtectedRoute from './pages/ProtectedRoute';
 
 function App() {
   return (
@@ -38,7 +39,13 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           {/* מנהל  */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute requiredRole="manager">
+            <Dashboard />
+          </ProtectedRoute>
+
+
+          } />
           <Route path="/manager/client" element={<UserManagement />} />
           <Route path="/manager/products" element={<ProductsManagement />} />
           <Route path="/manager/add-product" element={<AddProductForm />} />
