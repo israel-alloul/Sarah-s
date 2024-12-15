@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
 
 const Checkout = () => {
+
+  
   const { cartItems } = useContext(CartContext);
   const [isDelivery, setIsDelivery] = useState(false);
   const [address, setAddress] = useState({

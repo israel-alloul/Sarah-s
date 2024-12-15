@@ -84,6 +84,7 @@ const Navbar = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Athorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           name: userData.name,

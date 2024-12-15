@@ -7,6 +7,7 @@ const cors = require("cors");
 const { authenticateToken } = require("./Middleware");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+const authenaticateToken = require("./sources");
 
 const app = express();
 app.use(express.json());
@@ -31,7 +32,7 @@ app.use("/admin", appAdmin);
 
 // יצירת JWT Token
 const generateToken = (user) => {
-  return jwt.sign({ id: user.id, role: user.role }, "1234", {
+  return jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 };
@@ -69,7 +70,16 @@ app.post("/login", (req, res) => {
 
       // יצירת אסימון ושליחתו
       const token = generateToken(user);
-      res.json({ token, role: user.role ,username: user.username,email: user.email,phone: user.phone});
+      console.log("****", user);
+
+      res.json({
+        token,
+        role: user.role,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        userId: user.id,
+      });
     } catch (error) {
       console.log("Error comparing password:", error);
       res.status(500).send("Server error");
@@ -77,12 +87,12 @@ app.post("/login", (req, res) => {
   });
 });
 
-
 // מסלול עדכון פרופיל
 app.put("/api/update-profile", (req, res) => {
-  const { email, name, telephone,prevEmail } = req.body;
-  console.log(email, name, telephone,prevEmail);
-  
+  //authenaticateToken
+  const { email, name, telephone, prevEmail } = req.body;
+  console.log(email, name, telephone, prevEmail);
+
   // בדיקה אם המשתמש קיים
   const checkUserQuery = "SELECT * FROM users WHERE email = ?";
   db.query(checkUserQuery, [prevEmail], (err, results) => {
@@ -98,7 +108,8 @@ app.put("/api/update-profile", (req, res) => {
     const userId = results[0].id;
 
     // עדכון הנתונים
-    const updateQuery = "UPDATE users SET username = ?, phone = ?, email = ? WHERE id = ?";
+    const updateQuery =
+      "UPDATE users SET username = ?, phone = ?, email = ? WHERE id = ?";
     db.query(updateQuery, [name, telephone, email, userId], (err, result) => {
       if (err) {
         console.log("Error updating user:", err);
@@ -156,7 +167,6 @@ app.post("/api/auth/register", async (req, res) => {
 //////////////////////////////////////////////////////////////////////////
 app.get("/api/products", (req, res) => {
   const { type } = req.query; // קבלת type מהשאילתה
-  
 
   // בדיקה אם יש ערך ל-type, אחרת שליפה של כל המוצרים
   let sql = "SELECT * FROM products";
@@ -188,8 +198,6 @@ app.get("/api/products/:id", (req, res) => {
     }
   });
 });
-
-
 
 /////////////////////////
 // מסלול ליצירת הזמנה
@@ -282,9 +290,22 @@ app.get("/api/products/:id", (req, res) => {
 
 ///////////////..........................................................,,,,,,,,,,,,,,,,,,,,,,,,,
 
-app.post("/api/orders", authenticateToken, (req, res) => {
-  const userId = req.userId;
-  const { cartItems, totalPrice, address, isDelivery, paymentMethod, plannedDate } = req.body;
+app.post("/api/orders", (req, res) => {
+  //authenticateToken,
+  console.log(req.body);
+ 
+  const {
+    userId,
+    cartItems,
+    totalPrice,
+    address,
+    isDelivery,
+    paymentMethod,
+    plannedDate,
+  } = req.body;
+  const user_id = userId;
+  console.log("user_id:", userId);
+  
 
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     return res.status(400).json({ message: "Invalid product details" });
@@ -292,91 +313,91 @@ app.post("/api/orders", authenticateToken, (req, res) => {
 
   const insertOrderQuery =
     "INSERT INTO orders (user_id, total_price, address, order_date, planned_date) VALUES (?, ?, ?, NOW(), ?)";
-  db.query(insertOrderQuery, [userId, totalPrice, address, plannedDate || null], (err, result) => {
-    if (err) {
-      console.error("Error inserting order:", err);
-      return res.status(500).json({ message: "Server error while creating order" });
-    }
-
-    const orderId = result.insertId;
-
-    const orderItemsQuery =
-      "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ?";
-    const orderItems = cartItems.map((item) => [
-      orderId,
-      item.id,
-      item.quantity,
-      item.price,
-    ]);
-
-    db.query(orderItemsQuery, [orderItems], (err) => {
+  db.query(
+    insertOrderQuery,
+    [userId, totalPrice, address, plannedDate || null],
+    (err, result) => {
       if (err) {
-        console.error("Error inserting order items:", err);
-        return res.status(500).json({ message: "Server error while adding order items" });
+        console.error("Error inserting order:", err);
+        return res
+          .status(500)
+          .json({ message: "Server error while creating order" });
       }
 
-      // טיפול בתשלום
-      const paymentMethodValue =
-        typeof paymentMethod === "object" ? paymentMethod.method : paymentMethod;
+      const orderId = result.insertId;
 
-      const insertPaymentQuery =
-        "INSERT INTO payments (order_id, user_id, payment_date, amount, payment_method, status) VALUES (?, ?, NOW(), ?, ?, ?)";
-      const paymentStatus = paymentMethodValue === "כרטיס אשראי" ? "שולם" : "ממתין";
+      const orderItemsQuery =
+        "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ?";
+      const orderItems = cartItems.map((item) => [
+        orderId,
+        item.id,
+        item.quantity,
+        item.price,
+      ]);
 
-      db.query(
-        insertPaymentQuery,
-        [orderId, userId, totalPrice, paymentMethodValue, paymentStatus],
-        (err) => {
-          if (err) {
-            console.error("Error inserting payment:", err);
-            return res.status(500).json({ message: "Server error while processing payment" });
-          }
-
-          // תגובה סופית
-          return res.status(201).json({
-            message: "Order and payment created successfully",
-            orderId,
-          });
+      db.query(orderItemsQuery, [orderItems], (err) => {
+        if (err) {
+          console.error("Error inserting order items:", err);
+          return res
+            .status(500)
+            .json({ message: "Server error while adding order items" });
         }
-      );
-    });
-  });
+
+        // טיפול בתשלום
+        const paymentMethodValue =
+          typeof paymentMethod === "object"
+            ? paymentMethod.method
+            : paymentMethod;
+
+        const insertPaymentQuery =
+          "INSERT INTO payments (order_id, user_id, payment_date, amount, payment_method, status) VALUES (?, ?, NOW(), ?, ?, ?)";
+        const paymentStatus =
+          paymentMethodValue === "כרטיס אשראי" ? "שולם" : "ממתין";
+
+        db.query(
+          insertPaymentQuery,
+          [orderId, userId, totalPrice, paymentMethodValue, paymentStatus],
+          (err) => {
+            if (err) {
+              console.error("Error inserting payment:", err);
+              return res
+                .status(500)
+                .json({ message: "Server error while processing payment" });
+            }
+
+            // תגובה סופית
+            return res.status(201).json({
+              message: "Order and payment created successfully",
+              orderId,
+            });
+          }
+        );
+      });
+    }
+  );
 });
-
-
 
 // שליחת מייל באמצעות טופס יצירת קשר
-app.post('/contact', async (req, res) => {
+app.post("/contact", async (req, res) => {
   const { name, email, message } = req.body;
   const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    service: "gmail",
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
   });
   const mailOptions = {
-      from: "ic7.alloul@gmail.com",
-      to: "ic7.alloul@gmail.com",
-      subject: `New Contact Form Submission from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+    from: "ic7.alloul@gmail.com",
+    to: "ic7.alloul@gmail.com",
+    subject: `New Contact Form Submission from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
   };
   try {
-      await transporter.sendMail(mailOptions);
-      res.status(200).json({ message: 'Email sent successfully!' });
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
-      console.error('Error sending email:', error);
-      res.status(500).json({ message: 'Failed to send email' });
+    console.error("Error sending email:", error);
+    res.status(500).json({ message: "Failed to send email" });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = db;
 // הפעלת השרת

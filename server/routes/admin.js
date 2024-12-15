@@ -4,14 +4,23 @@ const db = require("../connection/db");
 // const nodemailer = require("nodemailer");
 // const bodyParser = require("body-parser");
 const sendPaymentReminderEmail = require("./emailUtils");
-
+// const authenaticateToken = require("../sources");
+// const extractingUserDetails = require("../sources");
 // app.use(bodyParser.json());
 router.get("/", (req, res) => {
   res.send("I admin");
 });
+// console.log(authenaticateToken, extractingUserDetails);
 
 // מסלול לשליפת כל המוצרים
-router.get("/products", (req, res) => {
+router.get("/products",  (req, res) => { //authenaticateToken
+  // token = await req.headers["athorization"];
+  // console.log("token: ", token);
+
+  // // console.log(req.headers);
+
+  // const user = await extractingUserDetails(token);
+  // console.log("user: ", user);
   console.log("Request received at /api/products");
   const query = "SELECT * FROM products";
   db.query(query, (err, results) => {
@@ -97,9 +106,6 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ message: "Error fetching users" });
   }
 });
-
-
-
 
 // נתיב להצגת ההזמנות למנהל
 router.get("/orders", async (req, res) => {
@@ -251,7 +257,9 @@ router.put("/orders/:orderId/update", (req, res) => {
           db.query(totalPriceSql, [orderId], (err, results) => {
             if (err) {
               console.error("Error calculating total price:", err);
-              return res.status(500).json({ message: "שגיאה בחישוב הסכום הכולל." });
+              return res
+                .status(500)
+                .json({ message: "שגיאה בחישוב הסכום הכולל." });
             }
 
             const totalPrice = results[0].total_price;
@@ -261,10 +269,14 @@ router.put("/orders/:orderId/update", (req, res) => {
             db.query(updateOrderSql, [totalPrice, orderId], (err, result) => {
               if (err) {
                 console.error("Error updating total price in orders:", err);
-                return res.status(500).json({ message: "שגיאה בעדכון סכום ההזמנה." });
+                return res
+                  .status(500)
+                  .json({ message: "שגיאה בעדכון סכום ההזמנה." });
               }
 
-              res.status(200).json({ message: "ההזמנה והסכום הכולל עודכנו בהצלחה." });
+              res
+                .status(200)
+                .json({ message: "ההזמנה והסכום הכולל עודכנו בהצלחה." });
             });
           });
         }
@@ -272,7 +284,6 @@ router.put("/orders/:orderId/update", (req, res) => {
     );
   });
 });
-
 
 // נתיב לעדכון פריטים של ההזמנה
 router.put("/orders/:orderId", (req, res) => {
@@ -302,23 +313,20 @@ router.put("/orders/:orderId", (req, res) => {
   );
 });
 
-
 // מחיקת פריט הזמנה לפי product_id
-router.delete('/orders/items/:productId', async (req, res) => {
+router.delete("/orders/items/:productId", async (req, res) => {
   const productId = req.params.productId;
 
   try {
     // מחיקת הפריט מטבלת ORDER_ITEM
-    await db.query('DELETE FROM order_items WHERE product_id = ?', [productId]);
+    await db.query("DELETE FROM order_items WHERE product_id = ?", [productId]);
 
-    res.status(200).send({ message: 'המוצר נמחק בהצלחה מהזמנה' });
+    res.status(200).send({ message: "המוצר נמחק בהצלחה מהזמנה" });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ error: 'שגיאה במחיקת הפריט מהזמנה' });
+    res.status(500).send({ error: "שגיאה במחיקת הפריט מהזמנה" });
   }
 });
-
-
 
 // נתיב להצגת הזמנות שמוכנות לאיסוף ומשלוח
 router.get("/orders/pickup-next-week", async (req, res) => {
@@ -389,19 +397,19 @@ router.delete("/orders/:orderId", (req, res) => {
   const { orderId } = req.params;
 
   // מחיקת התשלומים הקשורים להזמנה
-  const deletePaymentsQuery = 'DELETE FROM payments WHERE order_id = ?';
+  const deletePaymentsQuery = "DELETE FROM payments WHERE order_id = ?";
   db.query(deletePaymentsQuery, [orderId], (error) => {
     if (error) {
-      console.error('שגיאה במחיקת תשלומים:', error);
-      return res.status(500).json({ message: 'שגיאה במחיקת תשלומים' });
+      console.error("שגיאה במחיקת תשלומים:", error);
+      return res.status(500).json({ message: "שגיאה במחיקת תשלומים" });
     }
 
     // לאחר שמחקנו את התשלומים, ניתן למחוק את ההזמנה
-    const deleteOrderQuery = 'DELETE FROM orders WHERE order_id = ?';
+    const deleteOrderQuery = "DELETE FROM orders WHERE order_id = ?";
     db.query(deleteOrderQuery, [orderId], (error, results) => {
       if (error) {
-        console.error('שגיאה במחיקת הזמנה:', error);
-        return res.status(500).json({ message: 'שגיאה במחיקת הזמנה' });
+        console.error("שגיאה במחיקת הזמנה:", error);
+        return res.status(500).json({ message: "שגיאה במחיקת הזמנה" });
       }
 
       if (results.affectedRows > 0) {
@@ -412,10 +420,6 @@ router.delete("/orders/:orderId", (req, res) => {
     });
   });
 });
-
-
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -432,10 +436,7 @@ router.delete("/orders/:orderId", (req, res) => {
 //   });
 // });
 
-
-
-
-                  ////////////////////////////תשלום////////////////////////
+////////////////////////////תשלום////////////////////////
 // נתיב להצגת פרטי תשלום
 router.get("/payments", (req, res) => {
   console.log("Fetching payments...");

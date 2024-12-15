@@ -14,7 +14,7 @@ import ProductList from './components/Client/ProductList';
 import ProductDetails from './components/Client/ProductDetails';
 import products from './data/Product'; 
 import { CartProvider } from './context/CartContext'; // ייבוא של ספק הסל
-import Checkout from './components/Client/Chekout'
+import Checkout from './components/Client/Checkout'
 import Register from './pages/Register';
 import Payment from './components/Client/Payment';
 
@@ -25,6 +25,9 @@ import UserManagement from './components/Manager/UserManagement';
 import OrderDetails from './components/Manager/OrderDetails';
 import PaymentsManagement from './components/Manager/PaymentsManagement';
 import ProtectedRoute from './pages/ProtectedRoute';
+
+// import OrderProcess from './components/Client/OrderProcess';
+
 
 function App() {
   return (
@@ -37,6 +40,10 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          {/* <Route path="/order" element={<OrderProcess />} />  */}
+
+
 
           {/* מנהל  */}
           <Route path="/dashboard" element={
@@ -95,3 +102,4 @@ function App() {
 }
 
 export default App;
+//////////////////////////////////////////////

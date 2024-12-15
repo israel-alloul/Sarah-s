@@ -19,6 +19,8 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
+        
         localStorage.setItem("token", data.token); // שמירת ה-token ב-localStorage
         localStorage.setItem("role", data.role);
         localStorage.setItem("isLoggedIn", "true");
@@ -26,8 +28,8 @@ const Login = () => {
         localStorage.setItem("username", data.username);
         localStorage.setItem("email", data.email);
         localStorage.setItem("telephone", data.phone);
+        localStorage.setItem("userId", data.userId);
          // בהנחה ש-`userData.name` הוא שם המשתמש
-        console.log(data);
 
         // ניווט לפי סוג המשתמש
         if (data.role === "manager") {
