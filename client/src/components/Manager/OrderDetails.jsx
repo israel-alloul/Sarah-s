@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-// import html2pdf from "html2pdf.js";
+import html2pdf from "html2pdf.js";
 import styles from "../../assets/stylesManager/OrderDetails.module.css";
 
 const OrderDetails = () => {
   const location = useLocation();
 
   const address = location.state?.address || "";
+  const name = location.state?.name || "";
+  const phone = location.state?.phone || "";
+  const total_price = location.state?.total_price || "";
   
   const { orderId } = useParams();
   const [orderDetails, setOrderDetails] = useState(null);
@@ -97,6 +100,35 @@ const OrderDetails = () => {
   //   html2pdf().from(element).save(`Order_${orderDetails.order_id}.pdf`);
   // };
 
+  const handlePrintPDF = () => {
+    // בחר את האלמנטים שברצונך להסתיר
+    const actionsColumn = document.querySelectorAll(".actions-column, .actions-button");
+    
+    // הסתר את האלמנטים באופן זמני
+    actionsColumn.forEach((el) => el.style.display = "none");
+  
+    // הגדר את האלמנט המרכזי להמרה
+    const element = document.getElementById("order-details");
+  
+    // הגדרות PDF
+    const options = {
+      margin: 10,
+      filename: `Order_${orderDetails.order_id}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+  
+    // צור את ה-PDF
+    html2pdf().set(options).from(element).save().then(() => {
+      // החזר את התצוגה של האלמנטים למצב המקורי
+      actionsColumn.forEach((el) => el.style.display = "");
+    });
+  };
+  
+
+
+
   const handlePrint = () => {
     window.print();
   };
@@ -109,78 +141,102 @@ const OrderDetails = () => {
 
   return (
     <div className={styles.orderDetailsContainer}>
-      <h2 className={styles.orderTitle}>פרטי הזמנה {orderDetails.order_id}</h2>
-      <div id="order-details" className={styles.orderTableContainer}>
-        <table className={styles.orderTable}>
-          <thead>
-            <tr>
-              <th>שם מוצר</th>
-              <th>כמות</th>
-              <th>מחיר</th>
-              <th>כתובת</th>
-              <th>פעולות</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orderDetails.items.map((item, index) => (
-              <tr key={item.order_item_id}>
-                <td>{item.product_name}</td>
-                <td>{item.quantity} </td>
-                <td>{item.price} ₪</td>
-                <td>
-                  {/* אם הכתובת היא איסוף עצמי, לא נציג את פרטי הכתובת */}
-                  {!isSelfPickup ? (
-                    <table className={styles.addressTable}>
-                      <tbody>
-                        <tr>
-                          <td><strong>עיר:</strong></td>
-                          <td>{parsedAddress["עיר"]}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>רחוב:</strong></td>
-                          <td>{parsedAddress["רחוב"]}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>מספר בית:</strong></td>
-                          <td>{parsedAddress["מספר בית"]}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>קומה:</strong></td>
-                          <td>{parsedAddress["קומה"]}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>דירה:</strong></td>
-                          <td>{parsedAddress["דירה"]}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>קוד בניין:</strong></td>
-                          <td>{parsedAddress["קוד בניין"]}</td>
-                        </tr>
-                        <tr>
-                          <td><strong>הערות:</strong></td>
-                          <td>{parsedAddress["הערות"]}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p>איסוף עצמי</p>
-                  )}
-                </td>
-                <td>
-                  <button className={styles.editButton} onClick={() => handleEdit(index)}>ערוך</button>
-                  <button className={styles.deleteButton} onClick={() => handleDelete(item.product_id, index)}>מחק מוצר</button>
-                </td>
+      {/* הוספת ID כולל לכל החלק להדפסה */}
+      <div id="order-details">
+        <h2 className={styles.orderTitle}>פרטי הזמנה {orderDetails.order_id}</h2>
+        <p>שם: {name}</p>
+        <p>טלפון: {phone}</p>
+        <p>כתובת:</p>
+  
+        {/* הצגת כתובת אלא אם זו איסוף עצמי */}
+        {!isSelfPickup ? (
+          <table className={styles.addressTable}>
+            <tbody>
+              <tr>
+                <td><strong>עיר:</strong></td>
+                <td>{parsedAddress["עיר"]}</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+              <tr>
+                <td><strong>רחוב:</strong></td>
+                <td>{parsedAddress["רחוב"]}</td>
+              </tr>
+              <tr>
+                <td><strong>מספר בית:</strong></td>
+                <td>{parsedAddress["מספר בית"]}</td>
+              </tr>
+              <tr>
+                <td><strong>קומה:</strong></td>
+                <td>{parsedAddress["קומה"]}</td>
+              </tr>
+              <tr>
+                <td><strong>דירה:</strong></td>
+                <td>{parsedAddress["דירה"]}</td>
+              </tr>
+              <tr>
+                <td><strong>קוד בניין:</strong></td>
+                <td>{parsedAddress["קוד בניין"]}</td>
+              </tr>
+              <tr>
+                <td><strong>הערות:</strong></td>
+                <td>{parsedAddress["הערות"]}</td>
+              </tr>
+            </tbody>
+          </table>
+        ) : (
+          <p>איסוף עצמי</p>
+        )}
+  
+        {/* טבלת פריטים */}
+        <div className={styles.orderTableContainer}>
+          <table className={styles.orderTable}>
+            <thead>
+              <tr>
+                <th>שם מוצר</th>
+                <th>כמות</th>
+                <th>מחיר</th>
+                <th class="actions-column">פעולות</th> {/* הוספת class להסתרה */}
+              </tr>
+            </thead>
+            <tbody>
+              {orderDetails.items.map((item, index) => (
+                <tr key={item.order_item_id}>
+                  <td>{item.product_name}</td>
+                  <td>{item.quantity}</td>
+                  <td>{item.price} ₪</td>
+                  <td class="actions-column">
+                    {/* כפתורים להסתרה */}
+                    <button
+                      className={`no-print ${styles.editButton}`}
+                      onClick={() => handleEdit(index)}
+                    >
+                      ערוך
+                    </button>
+                    <button
+                      className={`no-print ${styles.deleteButton}`}
+                      onClick={() => handleDelete(item.product_id, index)}
+                    >
+                      מחק מוצר
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p>מחיר סה"כ: {total_price} ₪</p>
+        </div>
       </div>
-
+  
+      {/* כפתורי פעולה */}
       <div className={styles.actionButtons}>
-        {/* <button className={styles.printButton} onClick={handlePrintPDF}>ייצא ל-PDF</button> */}
-        <button className={styles.printButton} onClick={handlePrint}>הדפסה</button>
+        <button className={`no-print ${styles.printButton}`}onClick={handlePrintPDF}>
+          ייצא ל-PDF
+        </button>
+        <button  className={`no-print ${styles.printButton}`} onClick={handlePrint}>
+          הדפסה
+        </button>
       </div>
-
+  
+      {/* מודל עריכה */}
       {showModal && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
@@ -190,16 +246,26 @@ const OrderDetails = () => {
               <input
                 type="number"
                 value={selectedItem.quantity}
-                onChange={(e) => setSelectedItem({ ...selectedItem, quantity: e.target.value })}
+                onChange={(e) =>
+                  setSelectedItem({ ...selectedItem, quantity: e.target.value })
+                }
               />
             </label>
-            <button className={styles.saveButton} onClick={handleSaveChanges}>שמור</button>
-            <button className={styles.cancelButton} onClick={() => setShowModal(false)}>ביטול</button>
+            <button className={styles.saveButton} onClick={handleSaveChanges}>
+              שמור
+            </button>
+            <button
+              className={styles.cancelButton}
+              onClick={() => setShowModal(false)}
+            >
+              ביטול
+            </button>
           </div>
         </div>
       )}
     </div>
   );
+  
 };
 
 export default OrderDetails;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styles from '../../assets/stylesManager/AddProductForm.module.css';
 
 function AddProductForm() {
   const [formData, setFormData] = useState({
@@ -36,34 +37,83 @@ function AddProductForm() {
   };
 
   return (
-    <div>
-      <h2>Add New Product</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Type:</label>
-          <input type="text" name="type" value={formData.type} onChange={handleChange} required />
+    <div className={styles.container}>
+      <h2 className={styles.title}>הוספת מוצר חדש</h2>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGroup}>
+          <label>סוג המוצר:</label>
+          <input
+            type="text"
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="type"
+            required
+          />
         </div>
-        <div>
-          <label>Category:</label>
-          <input type="text" name="category" value={formData.category} onChange={handleChange} required />
+        <div className={styles.formGroup}>
+          <label>קטגוריה:</label>
+          <input
+            type="text"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="category"
+            required
+          />
         </div>
-        <div>
-          <label>Name:</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+        <div className={styles.formGroup}>
+          <label>שם המוצר:</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="name"
+            required
+          />
         </div>
-        <div>
-          <label>Description:</label>
-          <input type="text" name="description" value={formData.description} onChange={handleChange} required />
+        <div className={styles.formGroup}>
+          <label>תיאור המוצר:</label>
+          <input
+            type="text"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="description"
+            required
+          />
         </div>
-        <div>
-          <label>Price:</label>
-          <input type="number" name="price" value={formData.price} onChange={handleChange} required />
+        <div className={styles.formGroup}>
+          <label>מחיר:</label>
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="price"
+            required
+          />
         </div>
-        <div>
-          <label>Image URL:</label>
-          <input type="text" name="image" value={formData.image} onChange={handleChange} />
+        <div className={styles.formGroup}>
+          <label>קישור לתמונה:</label>
+          <input
+            type="text"
+            name="image"
+            value={formData.image}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="url"
+          />
         </div>
-        <button type="submit">Add Product</button>
+        <button type="submit" className={styles.submitButton}>
+          הוסף מוצר
+        </button>
       </form>
     </div>
   );

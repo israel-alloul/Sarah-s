@@ -1,0 +1,80 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #e3eac2,
+    #e3eac2 10px,
+    #fdfdfd 10px,
+    #fdfdfd 20px
+  );
+  border-bottom: 2px solid #c0a168;
+  font-family: "Times New Roman", serif;
+}
+
+.navbarLeft,
+.navbarCenter,
+.navbarRight {
+  display: flex;
+  align-items: center;
+}
+
+.navbarLeft input[type="text"] {
+  padding: 5px;
+  border: 1px solid #c0a168;
+  background-color: #fefcf6;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.navbarLeft button {
+  background-color: #8d6f3e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.navbarLeft button:hover {
+  background-color: #8b6d3b;
+}
+
+.username {
+  color: #0d0d0d;
+  margin-left: 20px;
+  margin-right: 15px;
+  font-weight: bold;
+}
+
+.navbarCenter .logo {
+  width: 150px;
+  height: 100px;
+  border: 2px solid #c0a168;
+  border-radius: 50%;
+}
+
+.navbarRight .link {
+  color: #634e28;
+  text-decoration: none;
+  margin-left: 15px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.navbarRight .link:hover {
+  text-decoration: underline;
+  color: #8b6d3b;
+}
+
+/* מסגרת מעוטרת */
+.decorativeFrame {
+  border: 2px solid #c0a168;
+  border-radius: 20px;
+  padding: 10px;
+  background-color: #fefcf6;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

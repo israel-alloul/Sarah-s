@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../connection/db");
-// const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 // const bodyParser = require("body-parser");
 const sendPaymentReminderEmail = require("./emailUtils");
 // const authenaticateToken = require("../sources");
@@ -115,6 +115,7 @@ router.get("/orders", async (req, res) => {
         o.order_id, 
         o.user_id, 
         u.username AS customer_name, 
+        u.phone,
         o.total_price, 
         o.order_date, 
         o.status, 
@@ -127,6 +128,7 @@ router.get("/orders", async (req, res) => {
         users u 
       ON 
         o.user_id = u.id
+        ORDER BY o.order_id 
     `;
     db.query(query, (err, results) => {
       if (err) {

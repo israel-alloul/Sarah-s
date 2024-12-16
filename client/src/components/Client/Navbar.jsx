@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import "../../assets/stylesClient/Navbar.css";
+import styles from "../../assets/stylesClient/Navbar.module.css";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,8 +120,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-left">
+    <nav className={styles.navbar}>
+      <div className={styles.navbarLeft}>
         <input
           type="text"
           placeholder="חפש..."
@@ -131,15 +131,12 @@ const Navbar = () => {
         <button onClick={toggleLanguage}>
           {language === "EN" ? "עברית" : "English"}
         </button>
-
         {isLoggedIn ? (
           <>
             <IconButton onClick={handleMenuOpen}>
               <AccountCircleIcon style={{ fontSize: 40, color: "white" }} />
             </IconButton>
-            <span style={{ color: "white", marginLeft: "10px" }}>
-              {username}
-            </span>
+            <span className={styles.username}>{username}</span>
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -151,26 +148,29 @@ const Navbar = () => {
           </>
         ) : (
           <Link to="/login">
-            <AccountCircleIcon style={{ fontSize: 40, color: "white" }} />
+            <AccountCircleIcon style={{ fontSize: 40, color: "black" }} />
           </Link>
         )}
-
         <Link to="/cart">
-          <ShoppingCartIcon style={{ fontSize: 40, color: "white" }} />
+          <ShoppingCartIcon style={{ fontSize: 40, color: "black" }} />
         </Link>
       </div>
-
-      <div className="navbar-center">
+  
+      <div className={styles.navbarCenter}>
         <Link to="/">
-        <img src="/images/logo.jpg" alt="logo" srcset="" style={{width: "150px", height: "100px"}}/>
+          <img src="/images/logo2.jpg" alt="logo" className={styles.logo} />
         </Link>
       </div>
-
-      <div className="navbar-right">
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact</Link>
+  
+      <div className={styles.navbarRight}>
+        <Link to="/about" className={styles.link}>
+          About
+        </Link>
+        <Link to="/contact" className={styles.link}>
+          Contact
+        </Link>
       </div>
-
+  
       <Dialog open={profileOpen} onClose={handleProfileClose}>
         <DialogTitle>פרטי משתמש</DialogTitle>
         <DialogContent>
@@ -205,9 +205,7 @@ const Navbar = () => {
             <>
               <Typography variant="body1">שם משתמש: {userData.name}</Typography>
               <Typography variant="body1">מייל: {userData.email}</Typography>
-              <Typography variant="body1">
-                טלפון: {userData.telephone}
-              </Typography>
+              <Typography variant="body1">טלפון: {userData.telephone}</Typography>
             </>
           )}
         </DialogContent>
@@ -228,6 +226,7 @@ const Navbar = () => {
       </Dialog>
     </nav>
   );
+  
 };
 
 export default Navbar;

@@ -70,7 +70,7 @@ const ProductList = ({ type }) => {
   return (
     <div className={styles.container}>
       <Typography variant="h4" className={styles.title}>
-        {category ? `מוצרים בקטגוריה: ${category}` : 'רשימת מוצרים'}
+        {/* {category ? `מוצרים בקטגוריה: ${category}` : 'רשימת מוצרים'} */}
       </Typography>
 
       {loading ? (

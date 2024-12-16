@@ -1,0 +1,88 @@
+.aboutContainer {
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .heroSection {
+    background: linear-gradient(135deg, #e0e0e0, #ffffff);
+    padding: 40px 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    color: #6d4c41;
+    margin: 0;
+  }
+  
+  .subtitle {
+    font-size: 1.2rem;
+    color: #888;
+  }
+  
+  .contentSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 40px 0;
+  }
+  
+  .textBlock {
+    width: 50%;
+    padding-right: 20px;
+    text-align: left;
+  }
+  
+  .imageBlock {
+    width: 50%;
+  }
+  
+  .image {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .servicesSection {
+    margin: 50px 0;
+  }
+  
+  .servicesSection h2 {
+    font-size: 1.8rem;
+    color: #6d4c41;
+    margin-bottom: 10px;
+  }
+  
+  .servicesList {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .servicesList li {
+    margin: 10px 0;
+    font-size: 1.1rem;
+  }
+  
+  .gallerySection {
+    margin: 50px 0;
+  }
+  
+  .gallery {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .gallery img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  

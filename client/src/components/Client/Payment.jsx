@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import styles from "../../assets/stylesClient/Payment.module.css";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const Payment = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           cartItems,
@@ -70,27 +71,27 @@ const Payment = () => {
   };
 
   return (
-    <div>
+    <div className={styles.paymentContainer}>
       <h2>תשלום</h2>
       {isDelivery && (
-  <div>
-    <p>עיר: {address.city}</p>
-    <p>רחוב: {address.street}</p>
-    <p>מספר בית: {address.houseNumber}</p>
-    <p>קומה: {address.floor}</p>
-    <p>דירה: {address.apartment}</p>
-    <p>קוד לבניין: {address.buildingCode}</p>
-    <p>הערות: {address.notes}</p>
-  </div>
-)}
+        <div className={styles.addressDetails}>
+          <p>עיר: {address.city}</p>
+          <p>רחוב: {address.street}</p>
+          <p>מספר בית: {address.houseNumber}</p>
+          <p>קומה: {address.floor}</p>
+          <p>דירה: {address.apartment}</p>
+          <p>קוד לבניין: {address.buildingCode}</p>
+          <p>הערות: {address.notes}</p>
+        </div>
+      )}
 
       <h3>בחר אמצעי תשלום</h3>
-      <div>
+      <div className={styles.selectPayment}>
         <select
           value={paymentMethod}
           onChange={(e) => setPaymentMethod(e.target.value)}
         >
-          <option value=""> בחר אמצעי תשלום</option>
+          <option value="">בחר אמצעי תשלום</option>
           <option value="Credit Card">כרטיס אשראי</option>
           <option value="מזומן">מזומן</option>
           <option value="שיק">שיק</option>
@@ -99,69 +100,66 @@ const Payment = () => {
       </div>
 
       {paymentMethod === "Credit Card" && (
-        <div>
-          <h3>פרטי כרטיס אשראי</h3>
-          <div>
-            <label>שם בעל הכרטיס:</label>
-            <input
-              type="text"
-              value={cardName}
-              onChange={handleInputChange(setCardName)}
-              placeholder="הכנס את שם בעל הכרטיס"
-            />
-          </div>
-          <div>
-            <label>מספר כרטיס:</label>
-            <input
-              type="text"
-              value={cardNumber}
-              onChange={handleInputChange(setCardNumber)}
-              placeholder="הכנס את מספר הכרטיס"
-              maxLength="16"
-            />
-          </div>
-          <div>
-            <label>תאריך תפוגה:</label>
-            <input
-              type="text"
-              value={expiryDate}
-              onChange={handleInputChange(setExpiryDate)}
-              placeholder="MM/YY"
-              maxLength="5"
-            />
-          </div>
-          <div>
-            <label>CVV:</label>
-            <input
-              type="text"
-              value={cvv}
-              onChange={handleInputChange(setCvv)}
-              placeholder="CVV"
-              maxLength="3"
-            />
-          </div>
+        <div className={styles.creditCardDetails}>
+          <label>שם בעל הכרטיס:</label>
+          <input
+            type="text"
+            value={cardName}
+            onChange={handleInputChange(setCardName)}
+            className={styles.input}
+            placeholder="הכנס את שם בעל הכרטיס"
+          />
+          <label>מספר כרטיס:</label>
+          <input
+            type="text"
+            value={cardNumber}
+            onChange={handleInputChange(setCardNumber)}
+            className={styles.input}
+            placeholder="הכנס את מספר הכרטיס"
+            maxLength="16"
+          />
+          <label>תאריך תפוגה:</label>
+          <input
+            type="text"
+            value={expiryDate}
+            onChange={handleInputChange(setExpiryDate)}
+            className={styles.input}
+            placeholder="MM/YY"
+            maxLength="5"
+          />
+          <label>CVV:</label>
+          <input
+            type="text"
+            value={cvv}
+            onChange={handleInputChange(setCvv)}
+            className={styles.input}
+            placeholder="CVV"
+            maxLength="3"
+          />
         </div>
       )}
 
       {paymentMethod === "מזומן" && (
-        <div>
-          <p>תשלום דרך PayPal יתבצע בעת לחיצה על הכפתור למטה.</p>
+        <div className={styles.infoMessage}>
+          <p>תשלום במזומן יתבצע במועד האספקה.</p>
         </div>
       )}
 
       {paymentMethod === "שיק" && (
-        <div>
+        <div className={styles.infoMessage}>
           <p>פרטי שיק יינתנו לאחר השלמת ההזמנה.</p>
         </div>
       )}
 
       {paymentMethod === "העברה בנקאית" && (
-        <div>
-          <p>פרטי להעברה בנקאית יינתנו לאחר השלמת ההזמנה.</p>
+        <div className={styles.infoMessage}>
+          <p>פרטי העברה בנקאית יינתנו לאחר השלמת ההזמנה.</p>
         </div>
       )}
 
-      <button onClick={handlePayment}>בצע תשלום</button>
+      <button onClick={handlePayment} className={styles.paymentButton}>
+        בצע תשלום
+      </button>
     </div>
   );
 };

@@ -1,10 +1,9 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
+import styles from "../../assets/stylesClient/Checkout.module.css";
 
 const Checkout = () => {
-
-  
   const { cartItems } = useContext(CartContext);
   const [isDelivery, setIsDelivery] = useState(false);
   const [address, setAddress] = useState({
@@ -23,7 +22,7 @@ const Checkout = () => {
   const handleOptionChange = (e) => {
     const selectedOption = e.target.value;
     setIsDelivery(selectedOption === "delivery");
-    setDeliveryFee(selectedOption === "delivery" ? 20 : 0);
+    setDeliveryFee(selectedOption === "delivery" ? 50 : 0);
   };
 
   const handleAddressChange = (e) => {
@@ -63,15 +62,16 @@ const Checkout = () => {
   };
 
   return (
-    <div className="checkout">
+    <div className={styles.checkout}>
       <h2>פרטי ההזמנה</h2>
-      <div>
+      <div className={styles.deliveryOptions}>
         <label>
           <input
             type="radio"
             value="pickup"
             checked={!isDelivery}
             onChange={handleOptionChange}
+            className={styles.input}
           />
           איסוף עצמי
         </label>
@@ -81,6 +81,7 @@ const Checkout = () => {
             value="delivery"
             checked={isDelivery}
             onChange={handleOptionChange}
+            className={styles.input}
           />
           משלוח (תוספת {deliveryFee} ₪)
         </label>
@@ -90,35 +91,90 @@ const Checkout = () => {
         <div>
           <h3>פרטי כתובת למשלוח</h3>
           <label>עיר:</label>
-          <input type="text" name="city" value={address.city} onChange={handleAddressChange} />
+          <input
+            type="text"
+            name="city"
+            value={address.city}
+            onChange={handleAddressChange}
+            className={styles.input}
+          />
 
           <label>רחוב:</label>
-          <input type="text" name="street" value={address.street} onChange={handleAddressChange} />
+          <input
+            type="text"
+            name="street"
+            value={address.street}
+            onChange={handleAddressChange}
+            className={styles.input}
+          />
 
           <label>מספר בית:</label>
-          <input type="text" name="houseNumber" value={address.houseNumber} onChange={handleAddressChange} />
+          <input
+            type="text"
+            name="houseNumber"
+            value={address.houseNumber}
+            onChange={handleAddressChange}
+            className={styles.input}
+          />
 
           <label>קומה:</label>
-          <input type="text" name="floor" value={address.floor} onChange={handleAddressChange} />
+          <input
+            type="text"
+            name="floor"
+            value={address.floor}
+            onChange={handleAddressChange}
+            className={styles.input}
+          />
 
           <label>דירה:</label>
-          <input type="text" name="apartment" value={address.apartment} onChange={handleAddressChange} />
+          <input
+            type="text"
+            name="apartment"
+            value={address.apartment}
+            onChange={handleAddressChange}
+            className={styles.input}
+          />
 
           <label>קוד לבניין:</label>
-          <input type="text" name="buildingCode" value={address.buildingCode} onChange={handleAddressChange} />
+          <input
+            type="text"
+            name="buildingCode"
+            value={address.buildingCode}
+            onChange={handleAddressChange}
+            className={styles.input}
+          />
 
           <label>הערות למשלוח:</label>
-          <textarea name="notes" value={address.notes} onChange={handleAddressChange}></textarea>
+          <textarea
+            name="notes"
+            value={address.notes}
+            onChange={handleAddressChange}
+            className={styles.textarea}
+          ></textarea>
         </div>
       )}
 
       <div>
         <label>בחר תאריך להזמנה:</label>
-        <input type="date" value={plannedDate} onChange={handleDateChange} />
+        <input
+          type="date"
+          value={plannedDate}
+          onChange={handleDateChange}
+          className={styles.input}
+        />
       </div>
-      
-      <h3>סה"כ לתשלום: {cartItems.reduce((total, item) => total + item.price * item.quantity, 0) + deliveryFee} ₪</h3>
-      <button onClick={handleContinueToPayment}>המשך לתשלום</button>
+
+      <h3 className={styles.total}>
+        סה"כ לתשלום:{" "}
+        {cartItems.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        ) + deliveryFee}{" "}
+        ₪
+      </h3>
+      <button onClick={handleContinueToPayment} className={styles.button}>
+        המשך לתשלום
+      </button>
     </div>
   );
 };

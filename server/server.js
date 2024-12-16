@@ -7,7 +7,7 @@ const cors = require("cors");
 const { authenticateToken } = require("./Middleware");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const authenaticateToken = require("./sources");
+// const authenaticateToken = require("./sources");
 
 const app = express();
 app.use(express.json());
@@ -290,10 +290,10 @@ app.get("/api/products/:id", (req, res) => {
 
 ///////////////..........................................................,,,,,,,,,,,,,,,,,,,,,,,,,
 
-app.post("/api/orders", (req, res) => {
+app.post("/api/orders", authenticateToken, (req, res) => {
   //authenticateToken,
   console.log(req.body);
- 
+
   const {
     userId,
     cartItems,
@@ -305,7 +305,6 @@ app.post("/api/orders", (req, res) => {
   } = req.body;
   const user_id = userId;
   console.log("user_id:", userId);
-  
 
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     return res.status(400).json({ message: "Invalid product details" });

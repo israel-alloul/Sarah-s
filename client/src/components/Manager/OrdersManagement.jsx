@@ -15,7 +15,9 @@ const OrdersManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+console.log(orders);
 
+  
   const [editData, setEditData] = useState({
     address: "",
     delivery_date: "",
@@ -64,8 +66,8 @@ const OrdersManagement = () => {
       .catch((error) => console.error("Error updating status:", error));
   };
 
-  const handleViewOrderDetails = (orderId, address) => {
-    navigate(`/manager/orders/${orderId}/details`, { state: { address } });
+  const handleViewOrderDetails = (orderId, address,name,phone,total_price) => {
+    navigate(`/manager/orders/${orderId}/details`, { state: { address,name,phone,total_price } });
   };
 
   const handleViewDeliveryDetails = (order) => {
@@ -285,7 +287,7 @@ const OrdersManagement = () => {
                   <button
                     className={styles.detailsButton}
                     onClick={() =>
-                      handleViewOrderDetails(order.order_id, order.address)
+                      handleViewOrderDetails(order.order_id, order.address, order.customer_name,order.phone,order.total_price)
                     }
                   >
                     הצג פריטים

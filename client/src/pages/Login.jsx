@@ -22,7 +22,6 @@ const Login = () => {
         console.log(data);
         
         localStorage.setItem("token", data.token); // שמירת ה-token ב-localStorage
-        localStorage.setItem("role", data.role);
         localStorage.setItem("isLoggedIn", "true");
 
         localStorage.setItem("username", data.username);
